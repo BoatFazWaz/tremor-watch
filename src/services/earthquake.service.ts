@@ -67,9 +67,6 @@ export class EarthquakeService {
       
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(`Failed to fetch earthquake data: ${error.message}`);
-      }
       if (error instanceof Error) {
         throw new Error(`Failed to fetch earthquake data: ${error.message}`);
       }
