@@ -15,7 +15,7 @@ importers:
         specifier: latest
         version: 2.4.4
 
-  packages/api:
+  apps/api:
     dependencies:
       axios:
         specifier: ^1.8.4
@@ -67,7 +67,7 @@ importers:
         specifier: ^3.0.9
         version: 3.0.9(@types/node@22.13.14)(@vitest/ui@3.0.9)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1)
 
-  packages/ui:
+  apps/ui:
     dependencies:
       '@tremor/react':
         specifier: ^3.18.7
