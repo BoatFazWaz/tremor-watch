@@ -11,6 +11,7 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
+    "typecheck": "tsc --noEmit",
     "docker:start": "docker-compose up api",
     "docker:dev": "docker-compose up api-dev",
     "docker:build": "docker-compose build",
