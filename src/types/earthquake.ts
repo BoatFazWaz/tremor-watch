@@ -50,4 +50,12 @@ export interface EarthquakeResponse {
   };
   features: EarthquakeFeature[];
   bbox: [number, number, number, number, number, number];
+}
+
+export interface EarthquakeQueryParams {
+  latitude: number;
+  longitude: number;
+  radius?: number; // in kilometers
+  starttime?: string;
+  endtime?: string;
 } 
