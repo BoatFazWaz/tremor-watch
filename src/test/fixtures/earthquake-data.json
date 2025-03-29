@@ -1,0 +1,49 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "generated": 1234567890,
+    "url": "test-url",
+    "title": "USGS Earthquakes",
+    "status": 200,
+    "api": "1.0",
+    "count": 1
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "mag": 5.0,
+        "place": "Test Location",
+        "time": 1234567890,
+        "updated": 1234567890,
+        "url": "test-url",
+        "detail": "test-detail",
+        "felt": null,
+        "cdi": null,
+        "mmi": null,
+        "alert": null,
+        "status": "reviewed",
+        "tsunami": 0,
+        "sig": 100,
+        "net": "test",
+        "code": "12345",
+        "ids": "test-id",
+        "sources": "test",
+        "types": "test",
+        "nst": 10,
+        "dmin": 0.1,
+        "rms": 0.1,
+        "gap": 10,
+        "magType": "ml",
+        "type": "earthquake",
+        "title": "Test Earthquake"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [0, 0, 0]
+      },
+      "id": "test-id"
+    }
+  ],
+  "bbox": [0, 0, 0, 0, 0, 0]
+} 

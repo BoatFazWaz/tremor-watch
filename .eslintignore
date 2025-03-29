@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Config files
+*.config.js
+*.config.ts
+
+# Generated files
+*.generated.ts
+*.generated.js
+
+# Cache
+.cache/
+.eslintcache
+
+# Logs
+*.log 
