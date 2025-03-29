@@ -58,4 +58,29 @@ export interface EarthquakeQueryParams {
   radius?: number; // in kilometers
   starttime?: string;
   endtime?: string;
+}
+
+export interface Feature {
+  type: string;
+  properties: {
+    mag: number;
+    place: string;
+    time: number;
+    [key: string]: any;
+  };
+  geometry: {
+    type: string;
+    coordinates: number[];
+  };
+  id: string;
+}
+
+export interface FeatureCollection {
+  type: string;
+  metadata: {
+    count: number;
+    [key: string]: any;
+  };
+  features: Feature[];
+  bbox: number[];
 } 

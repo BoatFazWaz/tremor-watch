@@ -1,7 +1,9 @@
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { EarthquakeService } from './earthquake.service';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+
 
 // Mock axios
 vi.mock('axios');
@@ -102,6 +104,71 @@ describe('EarthquakeService', () => {
 
       expect(result).toEqual(mockResponse.data);
       expect(result.features).toHaveLength(0);
+    });
+  });
+
+  describe('getEarthquakesByLocation', () => {
+    it('should fetch earthquake data with location parameters', async () => {
+      const mockResponse: AxiosResponse = {
+        data: mockEarthquakeData,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {} as any,
+      };
+
+      (axios.get as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
+
+      const params = {
+        latitude: 37.7749,
+        longitude: -122.4194,
+        radius: 1000,
+        starttime: '2024-03-01',
+        endtime: '2024-03-02',
+      };
+
+      const result = await EarthquakeService.getEarthquakesByLocation(params);
+
+      expect(result).toEqual(mockEarthquakeData);
+      expect(axios.get).toHaveBeenCalledWith(
+        process.env.USGS_API_URL,
+        expect.objectContaining({
+          params: expect.objectContaining({
+            format: 'geojson',
+            latitude: params.latitude,
+            longitude: params.longitude,
+            maxradiuskm: params.radius,
+            starttime: params.starttime,
+            endtime: params.endtime,
+          }),
+        }),
+      );
+    });
+
+    it('should use default values when optional parameters are not provided', async () => {
+      const mockResponse: AxiosResponse = {
+        data: mockEarthquakeData,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {} as any,
+      };
+
+      (axios.get as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce(mockResponse);
+
+      const params = {
+        latitude: 37.7749,
+        longitude: -122.4194,
+      };
+
+      await EarthquakeService.getEarthquakesByLocation(params);
+
+      const call = (axios.get as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
+      const requestParams = call[1].params;
+
+      expect(requestParams.maxradiuskm).toBe(2000);
+      expect(requestParams.starttime).toBeDefined();
+      expect(requestParams.endtime).toBeDefined();
     });
   });
 }); 

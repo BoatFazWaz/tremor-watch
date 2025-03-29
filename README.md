@@ -1,97 +1,119 @@
 # Tremor Watch
 
-A real-time earthquake monitoring application that displays earthquake data from the USGS API on an interactive map.
+A real-time earthquake monitoring application that provides earthquake data visualization and analysis.
 
-## Project Structure
+## Features
 
-This is a monorepo using Turborepo with the following packages:
+- Real-time earthquake data from USGS
+- Interactive map visualization
+- Location-based earthquake queries
+- Historical data analysis
+- Responsive design
 
-- `packages/api`: Express.js backend service that interfaces with the USGS API
-- `packages/ui`: React frontend application with interactive map visualization
+## API Endpoints
 
-## Prerequisites
+### Earthquakes
 
-- Node.js 18 or later
-- pnpm 8 or later
-- Docker (optional, for containerized development)
+#### Get Recent Earthquakes
+```http
+GET /earthquakes
+```
 
-## Getting Started
+Returns earthquake data for the last 24 hours.
+
+#### Get Earthquakes by Location
+```http
+GET /earthquakes/location
+```
+
+Query Parameters:
+- `latitude` (required): Latitude coordinate (-90 to 90)
+- `longitude` (required): Longitude coordinate (-180 to 180)
+- `radius` (optional): Search radius in kilometers (default: 2000)
+- `starttime` (optional): Start date in YYYY-MM-DD format
+- `endtime` (optional): End date in YYYY-MM-DD format
+
+Example:
+```http
+GET /earthquakes/location?latitude=37.7749&longitude=-122.4194&radius=1000
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- pnpm (v8 or higher)
+- Docker (optional)
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+PORT=3000
+NODE_ENV=development
+USGS_API_URL=https://earthquake.usgs.gov/fdsnws/event/1/query
+```
+
+### Running Locally
 
 1. Install dependencies:
    ```bash
    pnpm install
    ```
 
-2. Set up environment variables:
-   - Copy `.env.dev` to `.env.local` for development
-   - Copy `.env.prod` to `.env.local` for production
-
-3. Start the development servers:
+2. Start the development servers:
    ```bash
    pnpm dev
    ```
-   This will start both the API server (port 3000) and the UI development server (port 5173).
 
-## Development
+3. Access the application:
+   - Frontend: http://localhost:5173
+   - API: http://localhost:3000
 
-### Available Scripts
+### Running with Docker
 
-- `pnpm dev`: Start all development servers
-- `pnpm build`: Build all packages
-- `pnpm test`: Run tests across all packages
-- `pnpm lint`: Run linting across all packages
-- `pnpm clean`: Clean build artifacts
-
-### Package-specific Scripts
-
-#### API Package
-- `pnpm --filter @tremor-watch/api dev`: Start the API server
-- `pnpm --filter @tremor-watch/api test`: Run API tests
-- `pnpm --filter @tremor-watch/api build`: Build the API
-
-#### UI Package
-- `pnpm --filter @tremor-watch/ui dev`: Start the UI development server
-- `pnpm --filter @tremor-watch/ui build`: Build the UI
-- `pnpm --filter @tremor-watch/ui preview`: Preview the built UI
-
-## Docker Development
-
-To run the application using Docker:
-
-1. Build the development container:
+1. Build and start containers:
    ```bash
-   docker-compose build
+   docker-compose up --build
    ```
 
-2. Start the development environment:
-   ```bash
-   docker-compose up
-   ```
+2. Access the application:
+   - Frontend: http://localhost:5173
+   - API: http://localhost:3000
 
 ## Testing
 
-- Run all tests: `pnpm test`
-- Run tests with coverage: `pnpm test:coverage`
-- Run tests with UI: `pnpm test:ui`
+Run tests:
+```bash
+pnpm test
+```
 
-## API Endpoints
+Run tests with coverage:
+```bash
+pnpm test:coverage
+```
 
-- `GET /earthquakes`: Get recent earthquakes
-- `GET /earthquakes/location`: Get earthquakes near a specific location
-  - Query parameters:
-    - `latitude`: Required, latitude of the location
-    - `longitude`: Required, longitude of the location
-    - `radius`: Optional, search radius in kilometers (default: 2000)
-    - `starttime`: Optional, start time for the search
-    - `endtime`: Optional, end time for the search
+## Project Structure
+
+```
+tremor-watch/
+├── packages/
+│   ├── api/           # Express.js backend
+│   └── ui/            # React frontend
+├── docker-compose.yml
+└── package.json
+```
 
 ## Contributing
 
-1. Create a feature branch
-2. Make your changes
-3. Run tests and linting
-4. Submit a pull request
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-ISC
+This project is licensed under the MIT License - see the LICENSE file for details.
