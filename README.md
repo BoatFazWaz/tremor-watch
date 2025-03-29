@@ -1,14 +1,54 @@
-# Tremor Watch API
+# Tremor Watch
 
-A modern Express.js API backend built with TypeScript, Docker, and PNPM that provides earthquake data from the USGS API.
+A real-time earthquake monitoring application that provides earthquake data visualization and analysis.
 
-## Prerequisites
+## Features
 
-- Docker and Docker Compose
+- Real-time earthquake data from USGS
+- Interactive map visualization
+- Location-based earthquake queries
+- Historical data analysis
+- Responsive design
 
-## Environment Variables
+## API Endpoints
 
-Create a `.env` file in the root directory with the following variables:
+### Earthquakes
+
+#### Get Recent Earthquakes
+```http
+GET /earthquakes
+```
+
+Returns earthquake data for the last 24 hours.
+
+#### Get Earthquakes by Location
+```http
+GET /earthquakes/location
+```
+
+Query Parameters:
+- `latitude` (required): Latitude coordinate (-90 to 90)
+- `longitude` (required): Longitude coordinate (-180 to 180)
+- `radius` (optional): Search radius in kilometers (default: 2000)
+- `starttime` (optional): Start date in YYYY-MM-DD format
+- `endtime` (optional): End date in YYYY-MM-DD format
+
+Example:
+```http
+GET /earthquakes/location?latitude=37.7749&longitude=-122.4194&radius=1000
+```
+
+## Development
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- pnpm (v8 or higher)
+- Docker (optional)
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
 
 ```env
 PORT=3000
@@ -16,88 +56,64 @@ NODE_ENV=development
 USGS_API_URL=https://earthquake.usgs.gov/fdsnws/event/1/query
 ```
 
-## Getting Started
+### Running Locally
 
-### Development
-
-1. Start the development server (with hot-reloading):
+1. Install dependencies:
    ```bash
-   pnpm docker:dev
+   pnpm install
    ```
 
-2. Build the application:
+2. Start the development servers:
    ```bash
-   pnpm docker:build
+   pnpm dev
    ```
 
-3. Start production server:
+3. Access the application:
+   - Frontend: http://localhost:5173
+   - API: http://localhost:3000
+
+### Running with Docker
+
+1. Build and start containers:
    ```bash
-   pnpm docker:start
+   docker-compose up --build
    ```
 
-4. Stop all containers:
-   ```bash
-   pnpm docker:down
-   ```
+2. Access the application:
+   - Frontend: http://localhost:5173
+   - API: http://localhost:3000
 
-### Testing
+## Testing
 
-All testing commands run inside Docker containers:
-
+Run tests:
 ```bash
-# Run tests in watch mode
-pnpm docker:test
-
-# Run tests with coverage
-pnpm docker:test:coverage
-
-# Run tests with UI (available at http://localhost:5123)
-pnpm docker:test:ui
+pnpm test
 ```
 
-### Linting
-
-Run the linter inside Docker:
+Run tests with coverage:
 ```bash
-pnpm docker:lint
+pnpm test:coverage
 ```
-
-## API Endpoints
-
-- `GET /earthquakes` - Get earthquake data for today and yesterday
-- `GET /health` - Health check endpoint
 
 ## Project Structure
 
 ```
-.
-├── src/                # Source code
-│   ├── controllers/   # Route controllers
-│   ├── services/      # Business logic
-│   ├── types/         # TypeScript types
-│   └── index.ts       # Application entry point
-├── dist/              # Compiled JavaScript
-├── Dockerfile         # Docker configuration
-├── docker-compose.yml # Docker Compose configuration
-├── package.json       # Project dependencies
-├── tsconfig.json      # TypeScript configuration
-├── vitest.config.ts   # Vitest configuration
-└── .env              # Environment variables
+tremor-watch/
+├── packages/
+│   ├── api/           # Express.js backend
+│   └── ui/            # React frontend
+├── docker-compose.yml
+└── package.json
 ```
 
-## Development
+## Contributing
 
-- All development tools run inside Docker containers
-- The application uses TypeScript for type safety
-- Express.js for the web framework
-- PNPM for package management
-- Docker for containerization
-- ESLint for code linting
-- Hot-reloading in development mode
-- Multi-stage Docker builds for optimized production images
-- Vitest for testing with coverage reporting
-- Separate containers for development, testing, and production
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-ISC
+This project is licensed under the MIT License - see the LICENSE file for details.
