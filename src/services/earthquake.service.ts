@@ -1,13 +1,15 @@
 import axios from 'axios';
-import { EarthquakeResponse } from '../types/earthquake';
-
-const USGS_API_URL = process.env.USGS_API_URL as string;
-
-if (!USGS_API_URL) {
-  throw new Error('USGS_API_URL environment variable is not set');
-}
+import { EarthquakeResponse, EarthquakeQueryParams } from '../types/earthquake';
 
 export class EarthquakeService {
+  private static getApiUrl(): string {
+    const url = process.env.USGS_API_URL;
+    if (!url) {
+      throw new Error('USGS_API_URL environment variable is not set');
+    }
+    return url;
+  }
+
   private static formatDate(date: Date): string {
     return date.toISOString().split('T')[0];
   }
@@ -27,7 +29,7 @@ export class EarthquakeService {
     const { starttime, endtime } = this.getDateRange();
     
     try {
-      const response = await axios.get<EarthquakeResponse>(USGS_API_URL, {
+      const response = await axios.get<EarthquakeResponse>(this.getApiUrl(), {
         params: {
           format: 'geojson',
           starttime,
@@ -40,6 +42,31 @@ export class EarthquakeService {
       if (axios.isAxiosError(error)) {
         throw new Error(`Failed to fetch earthquake data: ${error.message}`);
       }
+      if (error instanceof Error) {
+        throw new Error(`Failed to fetch earthquake data: ${error.message}`);
+      }
+      throw new Error('Failed to fetch earthquake data: Unknown error');
+    }
+  }
+
+  public static async getEarthquakesByLocation(params: EarthquakeQueryParams): Promise<EarthquakeResponse> {
+    const { latitude, longitude, radius = 2000, starttime, endtime } = params;
+    const { starttime: defaultStarttime, endtime: defaultEndtime } = this.getDateRange();
+    
+    try {
+      const response = await axios.get<EarthquakeResponse>(this.getApiUrl(), {
+        params: {
+          format: 'geojson',
+          latitude,
+          longitude,
+          maxradiuskm: radius,
+          starttime: starttime || defaultStarttime,
+          endtime: endtime || defaultEndtime,
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to fetch earthquake data: ${error.message}`);
       }

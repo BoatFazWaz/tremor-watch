@@ -11,15 +11,7 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "typecheck": "tsc --noEmit",
-    "docker:start": "docker-compose up api",
-    "docker:dev": "docker-compose up api-dev",
-    "docker:build": "docker-compose build",
-    "docker:lint": "docker-compose run api-dev pnpm lint",
-    "docker:test": "docker-compose run test",
-    "docker:test:coverage": "docker-compose run test-coverage",
-    "docker:test:ui": "docker-compose up test-ui",
-    "docker:down": "docker-compose down"
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
