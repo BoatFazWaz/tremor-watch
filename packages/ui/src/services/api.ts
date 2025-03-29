@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { EarthquakeResponse, EarthquakeQueryParams } from '../types/earthquake';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL = '/api';
 
 export const api = {
   async getEarthquakesByLocation(params: EarthquakeQueryParams): Promise<EarthquakeResponse> {

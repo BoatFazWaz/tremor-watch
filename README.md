@@ -1,102 +1,96 @@
-# Tremor Watch API
+# Tremor Watch
 
-A modern Express.js API backend built with TypeScript, Docker, and PNPM that provides earthquake data from the USGS API.
-
-## Prerequisites
-
-- Docker and Docker Compose
-
-## Environment Variables
-
-Create a `.env` file in the root directory with the following variables:
-
-```env
-PORT=3000
-NODE_ENV=development
-USGS_API_URL=https://earthquake.usgs.gov/fdsnws/event/1/query
-```
-
-## Getting Started
-
-### Development
-
-1. Start the development server (with hot-reloading):
-   ```bash
-   pnpm docker:dev
-   ```
-
-2. Build the application:
-   ```bash
-   pnpm docker:build
-   ```
-
-3. Start production server:
-   ```bash
-   pnpm docker:start
-   ```
-
-4. Stop all containers:
-   ```bash
-   pnpm docker:down
-   ```
-
-### Testing
-
-All testing commands run inside Docker containers:
-
-```bash
-# Run tests in watch mode
-pnpm docker:test
-
-# Run tests with coverage
-pnpm docker:test:coverage
-
-# Run tests with UI (available at http://localhost:5123)
-pnpm docker:test:ui
-```
-
-### Linting
-
-Run the linter inside Docker:
-```bash
-pnpm docker:lint
-```
-
-## API Endpoints
-
-- `GET /earthquakes` - Get earthquake data for today and yesterday
-- `GET /health` - Health check endpoint
+A real-time earthquake monitoring application that displays earthquake data from the USGS API on an interactive map.
 
 ## Project Structure
 
-```
-.
-├── src/                # Source code
-│   ├── controllers/   # Route controllers
-│   ├── services/      # Business logic
-│   ├── types/         # TypeScript types
-│   └── index.ts       # Application entry point
-├── dist/              # Compiled JavaScript
-├── Dockerfile         # Docker configuration
-├── docker-compose.yml # Docker Compose configuration
-├── package.json       # Project dependencies
-├── tsconfig.json      # TypeScript configuration
-├── vitest.config.ts   # Vitest configuration
-└── .env              # Environment variables
-```
+This is a monorepo using Turborepo with the following packages:
+
+- `packages/api`: Express.js backend service that interfaces with the USGS API
+- `packages/ui`: React frontend application with interactive map visualization
+
+## Prerequisites
+
+- Node.js 18 or later
+- pnpm 8 or later
+- Docker (optional, for containerized development)
+
+## Getting Started
+
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+2. Set up environment variables:
+   - Copy `.env.dev` to `.env.local` for development
+   - Copy `.env.prod` to `.env.local` for production
+
+3. Start the development servers:
+   ```bash
+   pnpm dev
+   ```
+   This will start both the API server (port 3000) and the UI development server (port 5173).
 
 ## Development
 
-- All development tools run inside Docker containers
-- The application uses TypeScript for type safety
-- Express.js for the web framework
-- PNPM for package management
-- Docker for containerization
-- ESLint for code linting
-- Hot-reloading in development mode
-- Multi-stage Docker builds for optimized production images
-- Vitest for testing with coverage reporting
-- Separate containers for development, testing, and production
+### Available Scripts
+
+- `pnpm dev`: Start all development servers
+- `pnpm build`: Build all packages
+- `pnpm test`: Run tests across all packages
+- `pnpm lint`: Run linting across all packages
+- `pnpm clean`: Clean build artifacts
+
+### Package-specific Scripts
+
+#### API Package
+- `pnpm --filter @tremor-watch/api dev`: Start the API server
+- `pnpm --filter @tremor-watch/api test`: Run API tests
+- `pnpm --filter @tremor-watch/api build`: Build the API
+
+#### UI Package
+- `pnpm --filter @tremor-watch/ui dev`: Start the UI development server
+- `pnpm --filter @tremor-watch/ui build`: Build the UI
+- `pnpm --filter @tremor-watch/ui preview`: Preview the built UI
+
+## Docker Development
+
+To run the application using Docker:
+
+1. Build the development container:
+   ```bash
+   docker-compose build
+   ```
+
+2. Start the development environment:
+   ```bash
+   docker-compose up
+   ```
+
+## Testing
+
+- Run all tests: `pnpm test`
+- Run tests with coverage: `pnpm test:coverage`
+- Run tests with UI: `pnpm test:ui`
+
+## API Endpoints
+
+- `GET /earthquakes`: Get recent earthquakes
+- `GET /earthquakes/location`: Get earthquakes near a specific location
+  - Query parameters:
+    - `latitude`: Required, latitude of the location
+    - `longitude`: Required, longitude of the location
+    - `radius`: Optional, search radius in kilometers (default: 2000)
+    - `starttime`: Optional, start time for the search
+    - `endtime`: Optional, end time for the search
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests and linting
+4. Submit a pull request
 
 ## License
 

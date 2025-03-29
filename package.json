@@ -1,41 +1,23 @@
 {
-  "name": "tremor-watch-api",
+  "name": "tremor-watch",
   "version": "1.0.0",
-  "description": "Tremor Watch API Backend",
-  "main": "dist/index.js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
-    "lint": "eslint . --ext .ts",
-    "test": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui",
-    "typecheck": "tsc --noEmit"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "axios": "^1.8.4",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "helmet": "^8.1.0"
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "test:coverage": "turbo test:coverage",
+    "test:ui": "turbo test:ui",
+    "clean": "turbo clean",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@eslint/js": "^9.23.0",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.1",
-    "@types/node": "^22.13.14",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.28.0",
-    "@vitest/coverage-v8": "^3.0.9",
-    "@vitest/ui": "^3.0.9",
-    "eslint": "^9.23.0",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.2",
-    "vitest": "^3.0.9"
+    "turbo": "latest",
+    "prettier": "^3.2.5"
   },
   "packageManager": "pnpm@10.7.0"
 }
