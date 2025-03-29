@@ -13,7 +13,8 @@
     "test:coverage": "turbo test:coverage",
     "test:ui": "turbo test:ui",
     "clean": "turbo clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "turbo typecheck"
   },
   "devDependencies": {
     "turbo": "latest",
