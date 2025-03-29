@@ -3,11 +3,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and turbo
+RUN npm install -g pnpm@10.7.0 turbo
 
 # Copy package files
-COPY package.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
 # Install all dependencies (including devDependencies)
 RUN pnpm install
@@ -23,11 +23,11 @@ FROM node:20-alpine AS development
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and turbo
+RUN npm install -g pnpm@10.7.0 turbo
 
 # Copy package files
-COPY package.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
 # Install all dependencies (including devDependencies)
 RUN pnpm install
@@ -48,11 +48,11 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and turbo
+RUN npm install -g pnpm@10.7.0 turbo
 
 # Copy package files
-COPY package.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
 # Install production dependencies only
 RUN pnpm install --prod
