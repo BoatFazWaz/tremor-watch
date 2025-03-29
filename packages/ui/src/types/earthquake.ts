@@ -25,7 +25,7 @@ export interface EarthquakeFeature {
     rms: number;
     gap: number;
     magType: string;
-    type: string;
+    featureType: string;
     title: string;
   };
   geometry: {
