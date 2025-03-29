@@ -1,5 +1,5 @@
 services:
-  api:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,66 +11,3 @@ services:
     env_file:
       - .env
     restart: unless-stopped
-
-  api-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-    ports:
-      - "3000:3000"
-      - "5123:5123" # Vitest UI port
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-    env_file:
-      - .env
-    restart: unless-stopped
-
-  test:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=test
-    env_file:
-      - .env
-    command: pnpm test
-
-  test-coverage:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - ./coverage:/app/coverage
-    environment:
-      - NODE_ENV=test
-    env_file:
-      - .env
-    command: pnpm test:coverage
-
-  test-ui:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-    ports:
-      - "5123:5123"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=test
-    env_file:
-      - .env
-    command: pnpm test:ui 
