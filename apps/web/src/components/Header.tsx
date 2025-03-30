@@ -1,11 +1,19 @@
 import { Button } from './ui/Button';
+import { clsx } from 'clsx';
 
 interface HeaderProps {
   loading: boolean;
   onRefresh: () => void;
+  isLiveFetchEnabled: boolean;
+  onToggleLiveFetch: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ loading, onRefresh }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  loading, 
+  onRefresh, 
+  isLiveFetchEnabled,
+  onToggleLiveFetch 
+}) => {
   return (
     <header className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -17,6 +25,15 @@ export const Header: React.FC<HeaderProps> = ({ loading, onRefresh }) => {
             </span>
           </div>
           <div className="flex items-center gap-4">
+            <Button 
+              variant="secondary"
+              onClick={onToggleLiveFetch}
+              className={clsx(
+                isLiveFetchEnabled && "bg-red-500 hover:bg-red-600 text-white border-red-400 animate-pulse"
+              )}
+            >
+              {isLiveFetchEnabled ? "Live Monitoring" : "Start Live Monitoring"}
+            </Button>
             <Button 
               loading={loading} 
               onClick={onRefresh}

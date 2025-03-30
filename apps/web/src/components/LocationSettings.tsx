@@ -37,6 +37,32 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
     return Math.abs(latitude - lat) < 0.0001 && Math.abs(longitude - lng) < 0.0001;
   };
 
+  const handleGetCurrentLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          onLatitudeChange(position.coords.latitude);
+          onLongitudeChange(position.coords.longitude);
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          alert('Unable to get your location. Please check your browser permissions.');
+        }
+      );
+    } else {
+      alert('Geolocation is not supported by your browser.');
+    }
+  };
+
+  const isCurrentLocationSelected = () => {
+    // If any region is selected, current location is not selected
+    if (THAI_REGIONS.some(region => isSelectedRegion(region.latitude, region.longitude))) {
+      return false;
+    }
+    // Check if we have a location that doesn't match any preset region
+    return false; // By default, assume current location is not selected
+  };
+
   return (
     <Card className="lg:col-span-3">
       <div className="p-6">
@@ -48,8 +74,37 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
         <div className="space-y-6">
           {/* Preset Regions Section */}
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Preset Regions</h3>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
+              <button
+                onClick={handleGetCurrentLocation}
+                className={clsx(
+                  'px-3 py-2 text-sm font-medium rounded-md transition-colors inline-flex items-center gap-1.5',
+                  isCurrentLocationSelected()
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                )}
+              >
+                <svg 
+                  className="w-4 h-4" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" 
+                  />
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
+                  />
+                </svg>
+                Current Location
+              </button>
               {THAI_REGIONS.map((region) => (
                 <button
                   key={region.name}
@@ -69,7 +124,7 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
 
           {/* All Other Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div>
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-600 mb-1">
                 Latitude
               </label>
@@ -82,7 +137,7 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
                 step="0.0001"
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-600 mb-1">
                 Longitude
               </label>
