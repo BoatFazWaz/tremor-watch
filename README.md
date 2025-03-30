@@ -15,11 +15,12 @@ A real-time earthquake monitoring application that provides earthquake data visu
 ## Tech Stack
 
 - **Frontend**: React + Vite + TypeScript
-- **UI Components**: Tremor
+- **UI Components**: Tremor + Tailwind CSS
 - **Backend**: Express.js + TypeScript
 - **Containerization**: Docker
 - **Package Manager**: pnpm
 - **Build Tool**: Turborepo
+- **Deployment**: Vercel
 
 ## Project Structure
 
@@ -27,11 +28,18 @@ A real-time earthquake monitoring application that provides earthquake data visu
 tremor-watch/
 ├── apps/
 │   ├── api/           # Express.js backend
-│   └── web/           # React frontend
-├── packages/          # Shared packages
+│   └── web/          # React frontend
+├── packages/
+│   └── shared/       # Shared utilities and types
+├── .env.dev          # Development environment variables
+├── .env.prod         # Production environment variables
+├── .env.test         # Test environment variables
 ├── docker-compose.yml
+├── Dockerfile
 ├── package.json
-└── turbo.json
+├── pnpm-workspace.yaml
+├── turbo.json
+└── vercel.json
 ```
 
 ## API Endpoints
@@ -70,9 +78,14 @@ GET /earthquakes/location?latitude=13.7454881&longitude=100.5622455&radius=1000
 - pnpm (v10.7.0 or higher)
 - Docker (optional)
 
-### Environment Variables
+### Environment Setup
 
-Create a `.env` file in the root directory:
+The project uses different environment files for different deployment scenarios:
+- `.env.dev` - Development environment configuration
+- `.env.prod` - Production environment configuration
+- `.env.test` - Test environment configuration
+
+Base environment variables:
 
 ```env
 PORT=3000
@@ -123,6 +136,10 @@ Run tests with UI:
 ```bash
 pnpm test:ui
 ```
+
+## Deployment
+
+The application is configured for deployment on Vercel using the `vercel.json` configuration file. The deployment process is automated through GitHub Actions workflows.
 
 ## Contributing
 
