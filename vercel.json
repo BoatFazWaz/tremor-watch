@@ -1,0 +1,12 @@
+{
+  "buildCommand": "pnpm turbo run build",
+  "installCommand": "pnpm install",
+  "framework": "vite",
+  "outputDirectory": "apps/web/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
