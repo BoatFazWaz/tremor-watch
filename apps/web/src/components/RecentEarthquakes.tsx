@@ -36,6 +36,17 @@ interface EarthquakeData {
   url: string;
 }
 
+interface WaveTravelTimes {
+  pWave: {
+    seconds: number;
+    formatted: string;
+  };
+  sWave: {
+    seconds: number;
+    formatted: string;
+  };
+}
+
 // Calculate distance between two points using Haversine formula
 export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Earth's radius in kilometers
@@ -50,7 +61,7 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
 }
 
 // Calculate estimated arrival time of seismic waves
-export function calculateArrivalTime(distance: number, timestamp: number): string {
+export function calculateArrivalTime(distance: number, timestamp: number): WaveTravelTimes {
   // P-waves (Primary waves) travel at approximately 6-8 km/s
   // Using average velocity of 7 km/s for P-waves
   const pWaveVelocity = 7; // km/s
@@ -59,8 +70,8 @@ export function calculateArrivalTime(distance: number, timestamp: number): strin
   // Using average velocity of 4 km/s for S-waves
   const sWaveVelocity = 4; // km/s
 
-  const pWaveTime = distance / pWaveVelocity;
-  const sWaveTime = distance / sWaveVelocity;
+  const pWaveSeconds = distance / pWaveVelocity;
+  const sWaveSeconds = distance / sWaveVelocity;
 
   // Format travel times
   const formatTravelTime = (seconds: number) => {
@@ -77,7 +88,16 @@ export function calculateArrivalTime(distance: number, timestamp: number): strin
     }
   };
 
-  return `P-waves: ${formatTravelTime(pWaveTime)}\nS-waves: ${formatTravelTime(sWaveTime)}`;
+  return {
+    pWave: {
+      seconds: pWaveSeconds,
+      formatted: formatTravelTime(pWaveSeconds)
+    },
+    sWave: {
+      seconds: sWaveSeconds,
+      formatted: formatTravelTime(sWaveSeconds)
+    }
+  };
 }
 
 // Calculate potential effect based on magnitude, depth, and distance
@@ -498,7 +518,6 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
                   );
 
                   const travelTimes = calculateArrivalTime(distance, earthquake.properties.time);
-                  const pWaveTime = travelTimes.split('\n')[0].split(': ')[1];
                   
                   return (
                     <tr 
@@ -543,7 +562,7 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {pWaveTime}
+                        {travelTimes.pWave.formatted}
                       </td>
                     </tr>
                   );

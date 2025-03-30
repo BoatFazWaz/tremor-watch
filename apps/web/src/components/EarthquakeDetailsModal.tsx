@@ -132,25 +132,18 @@ export const EarthquakeDetailsModal: React.FC<EarthquakeDetailsModalProps> = ({
                 <div>
                   <div className="text-xs text-gray-500">Seismic Wave Travel Time</div>
                   <div className="text-sm font-medium space-y-1 mt-1">
-                    {travelTimes.split('\n').map((line: string, index: number) => (
-                      <div key={index} className="flex items-center gap-1">
-                        <div className="group relative">
-                          <span className={clsx(
-                            "px-1.5 py-0.5 rounded text-xs font-medium cursor-help",
-                            index === 0 ? "bg-purple-100 text-purple-800" : "bg-indigo-100 text-indigo-800"
-                          )}>
-                            {line.split(': ')[0]}
-                          </span>
-                          <div className="hidden group-hover:block absolute z-50 w-64 p-2 bg-gray-500 text-white text-xs rounded shadow-lg -top-1 left-full ml-1">
-                            {index === 0 ? 
-                              "P-waves (Primary waves) are the fastest seismic waves, traveling through solids and liquids. They compress and expand material in the same direction they travel." :
-                              "S-waves (Secondary waves) are slower seismic waves that can only travel through solids. They move material perpendicular to their direction of travel."
-                            }
-                          </div>
-                        </div>
-                        <span>{line.split(': ')[1]}</span>
-                      </div>
-                    ))}
+                    <div className="flex items-center gap-1">
+                      <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                        P-waves
+                      </span>
+                      <span>{travelTimes.pWave.formatted}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                        S-waves
+                      </span>
+                      <span>{travelTimes.sWave.formatted}</span>
+                    </div>
                   </div>
                 </div>
               </div>
