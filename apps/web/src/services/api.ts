@@ -5,7 +5,7 @@ const USGS_API_BASE_URL = 'https://earthquake.usgs.gov/fdsnws/event/1/query';
 
 export const api = {
   async getEarthquakesByLocation(params: EarthquakeQueryParams): Promise<EarthquakeResponse> {
-    const { latitude, longitude, radius = 100, starttime, endtime } = params;
+    const { latitude, longitude, radius = 100, starttime, endtime, limit = 10 } = params;
     
     const queryParams = {
       format: 'geojson',
@@ -16,7 +16,7 @@ export const api = {
       endtime: endtime || new Date().toISOString(),
       minmagnitude: 2.5, // Filter out smaller earthquakes
       orderby: 'magnitude', // Order by magnitude
-      limit: 100 // Limit results
+      limit // Use the provided limit
     };
 
     const response = await axios.get<EarthquakeResponse>(USGS_API_BASE_URL, {
@@ -32,7 +32,7 @@ export const api = {
       endtime: new Date().toISOString(),
       minmagnitude: 2.5,
       orderby: 'magnitude',
-      limit: 100
+      limit: 10 // Default limit
     };
 
     const response = await axios.get<EarthquakeResponse>(USGS_API_BASE_URL, {

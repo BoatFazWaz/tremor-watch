@@ -9,6 +9,7 @@ import {
   FilterIcon,
   InfoIcon
 } from './icons';
+import clsx from 'clsx';
 
 interface RecentEarthquakesProps {
   earthquakes: EarthquakeFeature[];
@@ -17,7 +18,6 @@ interface RecentEarthquakesProps {
 
 type SortField = 'time' | 'magnitude' | 'depth';
 type SortDirection = 'asc' | 'desc';
-type TimeRange = '1h' | '24h' | '7d' | '30d' | '90d' | 'all';
 type ExportFormat = 'csv' | 'json' | 'excel';
 
 interface EarthquakeData {
@@ -39,7 +39,6 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
   const [currentPage, setCurrentPage] = useState(1);
   const [minMagnitude, setMinMagnitude] = useState<number | ''>('');
   const [searchLocation, setSearchLocation] = useState('');
-  const [timeRange, setTimeRange] = useState<TimeRange>('24h');
   const [showDetails, setShowDetails] = useState<string | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const itemsPerPage = 10;
@@ -57,21 +56,6 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
     if (searchLocation) {
       filtered = filtered.filter(e => 
         e.properties.place.toLowerCase().includes(searchLocation.toLowerCase())
-      );
-    }
-
-    // Apply time range filter
-    const now = Date.now();
-    const timeRanges = {
-      '1h': 60 * 60 * 1000,
-      '24h': 24 * 60 * 60 * 1000,
-      '7d': 7 * 24 * 60 * 60 * 1000,
-      '30d': 30 * 24 * 60 * 60 * 1000,
-      '90d': 90 * 24 * 60 * 60 * 1000,
-    };
-    if (timeRange !== 'all') {
-      filtered = filtered.filter(e => 
-        now - e.properties.time <= timeRanges[timeRange]
       );
     }
 
@@ -93,7 +77,7 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
     });
 
     return filtered;
-  }, [earthquakes, sortField, sortDirection, minMagnitude, searchLocation, timeRange]);
+  }, [earthquakes, sortField, sortDirection, minMagnitude, searchLocation]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredAndSortedEarthquakes.length / itemsPerPage);
@@ -222,7 +206,7 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
 
         {/* Filters */}
         <div className="mb-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Minimum Magnitude
@@ -253,57 +237,52 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
                 placeholder="Search by location"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Time Range
-              </label>
-              <select
-                value={timeRange}
-                onChange={(e) => {
-                  setTimeRange(e.target.value as TimeRange);
-                  setCurrentPage(1);
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="1h">Last Hour</option>
-                <option value="24h">Last 24 Hours</option>
-                <option value="7d">Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-                <option value="90d">Last 90 Days</option>
-                <option value="all">All Time</option>
-              </select>
-            </div>
           </div>
 
           {/* Quick Filters */}
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setMinMagnitude(6)}
-              className="px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full hover:bg-red-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-red-100 text-red-800 hover:bg-red-200"
+              )}
             >
               Magnitude ≥ 6.0
             </button>
             <button
               onClick={() => setMinMagnitude(5)}
-              className="px-3 py-1 text-sm font-medium text-orange-800 bg-orange-100 rounded-full hover:bg-orange-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-orange-100 text-orange-800 hover:bg-orange-200"
+              )}
             >
               Magnitude ≥ 5.0
             </button>
             <button
               onClick={() => setMinMagnitude(4)}
-              className="px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full hover:bg-yellow-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+              )}
             >
               Magnitude ≥ 4.0
             </button>
             <button
               onClick={() => setMinMagnitude(3)}
-              className="px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full hover:bg-green-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-green-100 text-green-800 hover:bg-green-200"
+              )}
             >
               Magnitude ≥ 3.0
             </button>
             <button
               onClick={() => setMinMagnitude('')}
-              className="px-3 py-1 text-sm font-medium text-gray-800 bg-gray-100 rounded-full hover:bg-gray-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              )}
             >
               Clear Filters
             </button>
@@ -379,15 +358,16 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
                       {formatDate(earthquake.properties.time)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      <span className={clsx(
+                        "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
                         earthquake.properties.mag >= 6
-                          ? 'bg-red-100 text-red-800'
+                          ? "bg-red-100 text-red-800"
                           : earthquake.properties.mag >= 5
-                          ? 'bg-orange-100 text-orange-800'
+                          ? "bg-orange-100 text-orange-800"
                           : earthquake.properties.mag >= 4
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}>
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-green-100 text-green-800"
+                      )}>
                         {earthquake.properties.mag.toFixed(1)}
                       </span>
                     </td>
@@ -400,11 +380,12 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
                       {earthquake.geometry.coordinates[2].toFixed(1)} km
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      <span className={clsx(
+                        "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
                         earthquake.properties.status === 'reviewed'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      )}>
                         {earthquake.properties.status}
                       </span>
                     </td>
@@ -425,73 +406,92 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
 
         {/* Earthquake Details Modal */}
         {showDetails && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-2xl w-full p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Earthquake Details</h3>
-                <button
-                  onClick={() => setShowDetails(null)}
-                  className="text-gray-400 hover:text-gray-500"
-                >
-                  <span className="sr-only">Close</span>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
+              style={{ zIndex: 9999 }}
+              onClick={() => setShowDetails(null)}
+            />
+            {/* Modal */}
+            <div 
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl p-4"
+              style={{ zIndex: 10000 }}
+            >
+              <div className="relative bg-white rounded-lg shadow-xl">
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-900">Earthquake Details</h3>
+                  <button
+                    onClick={() => setShowDetails(null)}
+                    className="text-gray-400 hover:text-gray-500 transition-colors"
+                  >
+                    <span className="sr-only">Close</span>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                {/* Modal Content */}
+                <div className="p-6">
+                  {(() => {
+                    const earthquake = filteredAndSortedEarthquakes.find(e => e.id === showDetails);
+                    if (!earthquake) return null;
+                    return (
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">Location</h4>
+                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.place}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">Magnitude</h4>
+                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.mag.toFixed(1)}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">Time</h4>
+                          <p className="mt-1 text-sm text-gray-900">{formatDate(earthquake.properties.time)}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">Depth</h4>
+                          <p className="mt-1 text-sm text-gray-900">{earthquake.geometry.coordinates[2].toFixed(1)} km</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">Status</h4>
+                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.status}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">Alert Level</h4>
+                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.alert || 'None'}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">Tsunami Warning</h4>
+                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.tsunami ? 'Yes' : 'No'}</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">Felt Reports</h4>
+                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.felt || 0} reports</p>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium text-gray-500">More Information</h4>
+                          <a
+                            href={earthquake.properties.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                          >
+                            View on USGS Website
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
-              {(() => {
-                const earthquake = filteredAndSortedEarthquakes.find(e => e.id === showDetails);
-                if (!earthquake) return null;
-                return (
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Location</h4>
-                      <p className="mt-1 text-sm text-gray-900">{earthquake.properties.place}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Magnitude</h4>
-                      <p className="mt-1 text-sm text-gray-900">{earthquake.properties.mag.toFixed(1)}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Time</h4>
-                      <p className="mt-1 text-sm text-gray-900">{formatDate(earthquake.properties.time)}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Depth</h4>
-                      <p className="mt-1 text-sm text-gray-900">{earthquake.geometry.coordinates[2].toFixed(1)} km</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Status</h4>
-                      <p className="mt-1 text-sm text-gray-900">{earthquake.properties.status}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Alert Level</h4>
-                      <p className="mt-1 text-sm text-gray-900">{earthquake.properties.alert || 'None'}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Tsunami Warning</h4>
-                      <p className="mt-1 text-sm text-gray-900">{earthquake.properties.tsunami ? 'Yes' : 'No'}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Felt Reports</h4>
-                      <p className="mt-1 text-sm text-gray-900">{earthquake.properties.felt || 0} reports</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">More Information</h4>
-                      <a
-                        href={earthquake.properties.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-1 text-sm text-blue-600 hover:text-blue-900"
-                      >
-                        View on USGS Website
-                      </a>
-                    </div>
-                  </div>
-                );
-              })()}
             </div>
-          </div>
+          </>
         )}
 
         {/* Pagination */}
@@ -504,14 +504,20 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={clsx(
+                  "px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50",
+                  currentPage === 1 && "opacity-50 cursor-not-allowed"
+                )}
               >
                 Previous
               </button>
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={clsx(
+                  "px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50",
+                  currentPage === totalPages && "opacity-50 cursor-not-allowed"
+                )}
               >
                 Next
               </button>
