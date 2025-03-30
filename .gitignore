@@ -29,3 +29,6 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db 
 .vercel
+
+#Turbo
+.turbo
