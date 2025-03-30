@@ -17,6 +17,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@tremor-watch/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       axios:
         specifier: ^1.8.4
         version: 1.8.4
@@ -69,6 +72,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@tremor-watch/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@tremor/react':
         specifier: ^3.18.7
         version: 3.18.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -124,6 +130,12 @@ importers:
       vite:
         specifier: ^6.2.3
         version: 6.2.3(@types/node@22.13.14)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1)
+
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
 
 packages:
 
