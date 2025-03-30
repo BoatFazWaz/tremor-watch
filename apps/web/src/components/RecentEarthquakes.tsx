@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { EarthquakeFeature } from '../types/earthquake';
 import { Card } from './ui/Card';
 import { 
@@ -9,14 +9,17 @@ import {
   FilterIcon,
   InfoIcon
 } from './icons';
+import { EarthquakeDetailsModal } from './EarthquakeDetailsModal';
 import clsx from 'clsx';
 
 interface RecentEarthquakesProps {
   earthquakes: EarthquakeFeature[];
   loading?: boolean;
+  latitude: number;
+  longitude: number;
 }
 
-type SortField = 'time' | 'magnitude' | 'depth';
+type SortField = 'time' | 'magnitude' | 'depth' | 'distance';
 type SortDirection = 'asc' | 'desc';
 type ExportFormat = 'csv' | 'json' | 'excel';
 
@@ -33,15 +36,134 @@ interface EarthquakeData {
   url: string;
 }
 
-export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthquakesProps) {
+// Calculate distance between two points using Haversine formula
+export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+// Calculate estimated arrival time of seismic waves
+export function calculateArrivalTime(distance: number, timestamp: number): string {
+  // P-waves (Primary waves) travel at approximately 6-8 km/s
+  // Using average velocity of 7 km/s for P-waves
+  const pWaveVelocity = 7; // km/s
+  
+  // S-waves (Secondary waves) travel at approximately 3.5-4.5 km/s
+  // Using average velocity of 4 km/s for S-waves
+  const sWaveVelocity = 4; // km/s
+
+  const pWaveTime = distance / pWaveVelocity;
+  const sWaveTime = distance / sWaveVelocity;
+
+  // Format travel times
+  const formatTravelTime = (seconds: number) => {
+    if (seconds < 60) {
+      return `${Math.round(seconds)} seconds`;
+    } else if (seconds < 3600) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.round(seconds % 60);
+      return `${minutes} min${minutes > 1 ? 's' : ''} ${remainingSeconds} sec${remainingSeconds !== 1 ? 's' : ''}`;
+    } else {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      return `${hours} hr${hours > 1 ? 's' : ''} ${minutes} min${minutes > 1 ? 's' : ''}`;
+    }
+  };
+
+  return `P-waves: ${formatTravelTime(pWaveTime)}\nS-waves: ${formatTravelTime(sWaveTime)}`;
+}
+
+// Calculate potential effect based on magnitude, depth, and distance
+export function calculateEffect(magnitude: number, depth: number, distance: number): string {
+  // Magnitude has exponential impact (each point is 10x stronger)
+  const magnitudeFactor = Math.pow(10, magnitude - 5); // normalize around magnitude 5
+
+  // Depth reduces impact (deeper = less effect)
+  const depthFactor = 1 / (1 + depth / 100);
+
+  // Distance reduces impact (further = less effect)
+  const distanceFactor = 1 / (1 + distance / 100);
+
+  // Combine factors
+  const effect = magnitudeFactor * depthFactor * distanceFactor;
+
+  // Categorize effect
+  if (effect >= 10) return 'Very Strong';
+  if (effect >= 1) return 'Strong';
+  if (effect >= 0.1) return 'Moderate';
+  if (effect >= 0.01) return 'Light';
+  return 'Minimal';
+}
+
+export function getEffectColor(effect: string): string {
+  switch (effect) {
+    case 'Very Strong':
+      return 'bg-red-100 text-red-800';
+    case 'Strong':
+      return 'bg-orange-100 text-orange-800';
+    case 'Moderate':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'Light':
+      return 'bg-blue-100 text-blue-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+}
+
+function formatDate(timestamp: number): string {
+  const date = new Date(timestamp);
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  }).replace(/,/g, '');
+}
+
+const WAVE_INFO = {
+  P: "P-waves (Primary waves) are the fastest seismic waves, traveling through solids and liquids. They compress and expand material in the same direction they travel.",
+  S: "S-waves (Secondary waves) are slower seismic waves that can only travel through solids. They move material perpendicular to their direction of travel."
+};
+
+export function RecentEarthquakes({ earthquakes, loading = false, latitude, longitude }: RecentEarthquakesProps) {
   const [sortField, setSortField] = useState<SortField>('time');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [minMagnitude, setMinMagnitude] = useState<number | ''>('');
   const [searchLocation, setSearchLocation] = useState('');
-  const [showDetails, setShowDetails] = useState<string | null>(null);
+  const [selectedEarthquake, setSelectedEarthquake] = useState<EarthquakeFeature | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+  const exportButtonRef = useRef<HTMLButtonElement>(null);
   const itemsPerPage = 10;
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        exportMenuRef.current && 
+        exportButtonRef.current && 
+        !exportMenuRef.current.contains(event.target as Node) &&
+        !exportButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowExportMenu(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Filter and sort earthquakes
   const filteredAndSortedEarthquakes = useMemo(() => {
@@ -72,12 +194,17 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
         case 'depth':
           comparison = a.geometry.coordinates[2] - b.geometry.coordinates[2];
           break;
+        case 'distance':
+          const distA = calculateDistance(latitude, longitude, a.geometry.coordinates[1], a.geometry.coordinates[0]);
+          const distB = calculateDistance(latitude, longitude, b.geometry.coordinates[1], b.geometry.coordinates[0]);
+          comparison = distA - distB;
+          break;
       }
-      return sortDirection === 'asc' ? -comparison : comparison;
+      return sortDirection === 'asc' ? comparison : -comparison;
     });
 
     return filtered;
-  }, [earthquakes, sortField, sortDirection, minMagnitude, searchLocation]);
+  }, [earthquakes, sortField, sortDirection, minMagnitude, searchLocation, latitude, longitude]);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredAndSortedEarthquakes.length / itemsPerPage);
@@ -85,17 +212,6 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    });
-  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -173,6 +289,7 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
           </div>
           <div className="relative">
             <button
+              ref={exportButtonRef}
               onClick={() => setShowExportMenu(!showExportMenu)}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
@@ -180,7 +297,10 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
               Export
             </button>
             {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+              <div 
+                ref={exportMenuRef}
+                className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
+              >
                 <button
                   onClick={() => exportData('csv')}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -343,156 +463,103 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
                       )}
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                  <th 
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('distance')}
+                  >
+                    <div className="flex items-center gap-1">
+                      Distance
+                      {sortField === 'distance' && (
+                        sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
+                      )}
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Details
+                    Potential Effect
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Travel Time
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedEarthquakes.map((earthquake) => (
-                  <tr key={earthquake.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(earthquake.properties.time)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={clsx(
-                        "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
-                        earthquake.properties.mag >= 6
-                          ? "bg-red-100 text-red-800"
-                          : earthquake.properties.mag >= 5
-                          ? "bg-orange-100 text-orange-800"
-                          : earthquake.properties.mag >= 4
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
-                      )}>
-                        {earthquake.properties.mag.toFixed(1)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {earthquake.properties.place}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {earthquake.geometry.coordinates[2].toFixed(1)} km
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={clsx(
-                        "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
-                        earthquake.properties.status === 'reviewed'
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      )}>
-                        {earthquake.properties.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => setShowDetails(showDetails === earthquake.id ? null : earthquake.id)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <InfoIcon className="h-5 w-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {paginatedEarthquakes.map((earthquake) => {
+                  const distance = calculateDistance(
+                    latitude,
+                    longitude,
+                    earthquake.geometry.coordinates[1],
+                    earthquake.geometry.coordinates[0]
+                  );
+
+                  const effect = calculateEffect(
+                    earthquake.properties.mag,
+                    earthquake.geometry.coordinates[2],
+                    distance
+                  );
+
+                  const travelTimes = calculateArrivalTime(distance, earthquake.properties.time);
+                  const pWaveTime = travelTimes.split('\n')[0].split(': ')[1];
+                  
+                  return (
+                    <tr 
+                      key={earthquake.id} 
+                      onClick={() => setSelectedEarthquake(earthquake)}
+                      className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(earthquake.properties.time)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={clsx(
+                          "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                          earthquake.properties.mag >= 6
+                            ? "bg-red-100 text-red-800"
+                            : earthquake.properties.mag >= 5
+                            ? "bg-orange-100 text-orange-800"
+                            : earthquake.properties.mag >= 4
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-green-100 text-green-800"
+                        )}>
+                          {earthquake.properties.mag.toFixed(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {earthquake.properties.place}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {earthquake.geometry.coordinates[2].toFixed(1)} km
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {distance.toFixed(1)} km
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={clsx(
+                          "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                          getEffectColor(effect)
+                        )}>
+                          {effect}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {pWaveTime}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
         </div>
 
         {/* Earthquake Details Modal */}
-        {showDetails && (
-          <>
-            {/* Backdrop */}
-            <div 
-              className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
-              style={{ zIndex: 9999 }}
-              onClick={() => setShowDetails(null)}
-            />
-            {/* Modal */}
-            <div 
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl p-4"
-              style={{ zIndex: 10000 }}
-            >
-              <div className="relative bg-white rounded-lg shadow-xl">
-                {/* Modal Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                  <h3 className="text-lg font-semibold text-gray-900">Earthquake Details</h3>
-                  <button
-                    onClick={() => setShowDetails(null)}
-                    className="text-gray-400 hover:text-gray-500 transition-colors"
-                  >
-                    <span className="sr-only">Close</span>
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                {/* Modal Content */}
-                <div className="p-6">
-                  {(() => {
-                    const earthquake = filteredAndSortedEarthquakes.find(e => e.id === showDetails);
-                    if (!earthquake) return null;
-                    return (
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">Location</h4>
-                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.place}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">Magnitude</h4>
-                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.mag.toFixed(1)}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">Time</h4>
-                          <p className="mt-1 text-sm text-gray-900">{formatDate(earthquake.properties.time)}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">Depth</h4>
-                          <p className="mt-1 text-sm text-gray-900">{earthquake.geometry.coordinates[2].toFixed(1)} km</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">Status</h4>
-                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.status}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">Alert Level</h4>
-                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.alert || 'None'}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">Tsunami Warning</h4>
-                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.tsunami ? 'Yes' : 'No'}</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">Felt Reports</h4>
-                          <p className="mt-1 text-sm text-gray-900">{earthquake.properties.felt || 0} reports</p>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-500">More Information</h4>
-                          <a
-                            href={earthquake.properties.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-1 inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
-                          >
-                            View on USGS Website
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                          </a>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
+        <EarthquakeDetailsModal
+          earthquake={selectedEarthquake}
+          onClose={() => setSelectedEarthquake(null)}
+          latitude={latitude}
+          longitude={longitude}
+        />
 
         {/* Pagination */}
         {totalPages > 1 && (

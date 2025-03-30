@@ -9,6 +9,7 @@ interface EarthquakeMapProps {
   zoom?: number;
   radius?: number; // in kilometers
   onCenterChange?: (lat: number, lng: number) => void;
+  containerId?: string; // Add containerId prop
 }
 
 export function EarthquakeMap({ 
@@ -16,7 +17,8 @@ export function EarthquakeMap({
   center = [0, 0], 
   zoom = 2, 
   radius = 2000, // default radius of 2000km
-  onCenterChange 
+  onCenterChange,
+  containerId = 'map' // Default to 'map' for backwards compatibility
 }: EarthquakeMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.CircleMarker[]>([]);
@@ -26,51 +28,54 @@ export function EarthquakeMap({
   // Initialize map
   useEffect(() => {
     if (!mapRef.current) {
-      mapRef.current = L.map('map').setView(center, zoom);
+      mapRef.current = L.map(containerId).setView(center, zoom);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(mapRef.current);
 
-      // Initialize center marker
-      centerMarkerRef.current = L.marker(center, {
-        draggable: true,
-        icon: L.divIcon({
-          className: 'custom-div-icon',
-          html: `<div style="
-            background-color: #3b82f6;
-            width: 12px;
-            height: 12px;
-            transform: rotate(45deg);
-            border: 2px solid white;
-            box-shadow: 0 0 0 2px #3b82f6;
-          "></div>`,
-          iconSize: [12, 12],
-          iconAnchor: [6, 6],
-        }),
-      })
-        .bindPopup('Selected Location')
-        .addTo(mapRef.current);
+      // Only add center marker and radius circle if onCenterChange is provided
+      if (onCenterChange) {
+        // Initialize center marker
+        centerMarkerRef.current = L.marker(center, {
+          draggable: true,
+          icon: L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="
+              background-color: #3b82f6;
+              width: 12px;
+              height: 12px;
+              transform: rotate(45deg);
+              border: 2px solid white;
+              box-shadow: 0 0 0 2px #3b82f6;
+            "></div>`,
+            iconSize: [12, 12],
+            iconAnchor: [6, 6],
+          }),
+        })
+          .bindPopup('Selected Location')
+          .addTo(mapRef.current);
 
-      // Initialize radius circle
-      radiusCircleRef.current = L.circle(center, {
-        radius: radius * 1000, // Convert km to meters
-        color: '#3b82f6',
-        fillColor: '#3b82f6',
-        fillOpacity: 0.1,
-        weight: 1,
-        dashArray: '5, 10',
-      }).addTo(mapRef.current);
+        // Initialize radius circle
+        radiusCircleRef.current = L.circle(center, {
+          radius: radius * 1000, // Convert km to meters
+          color: '#3b82f6',
+          fillColor: '#3b82f6',
+          fillOpacity: 0.1,
+          weight: 1,
+          dashArray: '5, 10',
+        }).addTo(mapRef.current);
 
-      // Add drag event handler
-      centerMarkerRef.current.on('dragend', (event) => {
-        const marker = event.target;
-        const position = marker.getLatLng();
-        // Update radius circle position
-        if (radiusCircleRef.current) {
-          radiusCircleRef.current.setLatLng(position);
-        }
-        onCenterChange?.(position.lat, position.lng);
-      });
+        // Add drag event handler
+        centerMarkerRef.current.on('dragend', (event) => {
+          const marker = event.target;
+          const position = marker.getLatLng();
+          // Update radius circle position
+          if (radiusCircleRef.current) {
+            radiusCircleRef.current.setLatLng(position);
+          }
+          onCenterChange(position.lat, position.lng);
+        });
+      }
     }
 
     return () => {
@@ -79,7 +84,7 @@ export function EarthquakeMap({
         mapRef.current = null;
       }
     };
-  }, []); // Only run on mount
+  }, [containerId]); // Add containerId to dependencies
 
   // Update center marker and radius circle position
   useEffect(() => {
@@ -88,6 +93,10 @@ export function EarthquakeMap({
       if (radiusCircleRef.current) {
         radiusCircleRef.current.setLatLng(center);
       }
+    }
+    // Update map view if it exists
+    if (mapRef.current) {
+      mapRef.current.setView(center, mapRef.current.getZoom());
     }
   }, [center]);
 
@@ -129,7 +138,7 @@ export function EarthquakeMap({
     });
   }, [earthquakes]);
 
-  return <div id="map" style={{ height: '600px', width: '100%' }} />;
+  return <div id={containerId} style={{ height: '100%', width: '100%' }} />;
 }
 
 function getMagnitudeColor(magnitude: number): string {
