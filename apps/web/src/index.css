@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Leaflet-specific styles */
 .leaflet-popup-content {
   margin: 8px 12px;
