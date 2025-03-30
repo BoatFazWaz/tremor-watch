@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:23.10.0 AS builder
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ COPY . .
 RUN pnpm build
 
 # Development stage
-FROM node:20-alpine AS development
+FROM node:23.10.0 AS development
 
 WORKDIR /app
 
@@ -44,7 +44,7 @@ EXPOSE 5123
 CMD ["pnpm", "run", "dev"]
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:23.10.0 AS production
 
 WORKDIR /app
 

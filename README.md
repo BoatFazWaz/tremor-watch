@@ -35,7 +35,7 @@ Query Parameters:
 
 Example:
 ```http
-GET /earthquakes/location?latitude=37.7749&longitude=-122.4194&radius=1000
+GET /earthquakes/location?latitude=13.7454881&longitude=100.5622455&radius=1000
 ```
 
 ## Development
