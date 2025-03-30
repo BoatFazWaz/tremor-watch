@@ -12,6 +12,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@tremor-watch/shared": "workspace:*",
     "@tremor/react": "^3.18.7",
     "axios": "^1.8.4",
