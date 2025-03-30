@@ -181,6 +181,7 @@ export const EarthquakeDetailsModal: React.FC<EarthquakeDetailsModalProps> = ({
                   zoom={8}
                   radius={100}
                   containerId="modal-map"
+                  selectedLocation={[latitude, longitude]}
                 />
               </div>
             </div>
