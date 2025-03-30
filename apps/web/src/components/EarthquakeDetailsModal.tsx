@@ -133,15 +133,25 @@ export const EarthquakeDetailsModal: React.FC<EarthquakeDetailsModalProps> = ({
                   <div className="text-xs text-gray-500">Seismic Wave Travel Time</div>
                   <div className="text-sm font-medium space-y-1 mt-1">
                     <div className="flex items-center gap-1">
-                      <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                        P-waves
-                      </span>
+                      <div className="group relative">
+                        <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 cursor-help">
+                          P-waves
+                        </span>
+                        <div className="hidden group-hover:block absolute z-50 w-64 p-2 bg-gray-500 text-white text-xs rounded shadow-lg -top-1 left-full ml-1">
+                          P-waves (Primary waves) are the fastest seismic waves, traveling through solids and liquids. They compress and expand material in the same direction they travel.
+                        </div>
+                      </div>
                       <span>{travelTimes.pWave.formatted}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
-                        S-waves
-                      </span>
+                      <div className="group relative">
+                        <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800 cursor-help">
+                          S-waves
+                        </span>
+                        <div className="hidden group-hover:block absolute z-50 w-64 p-2 bg-gray-500 text-white text-xs rounded shadow-lg -top-1 left-full ml-1">
+                          S-waves (Secondary waves) are slower seismic waves that can only travel through solids. They move material perpendicular to their direction of travel.
+                        </div>
+                      </div>
                       <span>{travelTimes.sWave.formatted}</span>
                     </div>
                   </div>
