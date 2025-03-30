@@ -12,7 +12,7 @@ importers:
         specifier: ^3.2.5
         version: 3.5.3
       turbo:
-        specifier: latest
+        specifier: ^2.4.4
         version: 2.4.4
 
   apps/api:
