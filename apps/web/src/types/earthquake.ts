@@ -54,4 +54,5 @@ export interface EarthquakeQueryParams {
   radius?: number;
   starttime?: string;
   endtime?: string;
+  limit?: number;
 } 

@@ -9,6 +9,8 @@ import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
 import { Select } from './components/ui/Select';
 import RootLayout from './app/layout';
+import { useDebounce } from './hooks/useDebounce';
+import clsx from 'clsx';
 
 function App() {
   const [earthquakes, setEarthquakes] = useState<EarthquakeFeature[]>([]);
@@ -18,27 +20,57 @@ function App() {
   const [longitude, setLongitude] = useState(100.5622455);
   const [radius, setRadius] = useState(2000);
   const [timeRange, setTimeRange] = useState('24h');
+  const [limit, setLimit] = useState(10);
+
+  // Only debounce radius changes, pin location should update immediately
+  const debouncedRadius = useDebounce(radius, 300);
 
   const fetchEarthquakes = async () => {
     setLoading(true);
     setError(null);
     try {
+      // Calculate start time based on time range
+      const now = new Date();
+      let starttime: string;
+      
+      switch (timeRange) {
+        case '1h':
+          starttime = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+          break;
+        case '24h':
+          starttime = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+          break;
+        case '7d':
+          starttime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+          break;
+        case '30d':
+          starttime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+          break;
+        default:
+          starttime = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+      }
+
       const response = await api.getEarthquakesByLocation({
         latitude,
         longitude,
-        radius,
+        radius: debouncedRadius,
+        starttime,
+        endtime: new Date().toISOString(),
+        limit
       });
+
       setEarthquakes(response.features);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch earthquake data');
+      setError(err instanceof Error ? err.message : 'Failed to fetch earthquakes');
     } finally {
       setLoading(false);
     }
   };
 
+  // Update when location, radius, time range, or limit changes
   useEffect(() => {
     fetchEarthquakes();
-  }, []);
+  }, [latitude, longitude, debouncedRadius, timeRange, limit]);
 
   return (
     <RootLayout>
@@ -93,6 +125,9 @@ function App() {
                     value={latitude.toString()}
                     onChange={(e) => setLatitude(Number(e.target.value))}
                     placeholder="Enter latitude"
+                    min={-90}
+                    max={90}
+                    step="any"
                   />
                   <Input
                     label="Longitude"
@@ -100,14 +135,56 @@ function App() {
                     value={longitude.toString()}
                     onChange={(e) => setLongitude(Number(e.target.value))}
                     placeholder="Enter longitude"
+                    min={-180}
+                    max={180}
+                    step="any"
                   />
-                  <Input
-                    label="Radius (km)"
-                    type="number"
-                    value={radius.toString()}
-                    onChange={(e) => setRadius(Number(e.target.value))}
-                    placeholder="Enter radius"
-                  />
+                  <div className="space-y-2">
+                    <Input
+                      label="Radius (km)"
+                      type="number"
+                      value={radius.toString()}
+                      onChange={(e) => setRadius(Number(e.target.value))}
+                      placeholder="Enter radius"
+                      min={1}
+                      max={20000}
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setRadius(500)}
+                        className={clsx(
+                          "px-3 py-1 text-sm font-medium rounded-full transition-colors",
+                          radius === 500
+                            ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                        )}
+                      >
+                        500 km
+                      </button>
+                      <button
+                        onClick={() => setRadius(1000)}
+                        className={clsx(
+                          "px-3 py-1 text-sm font-medium rounded-full transition-colors",
+                          radius === 1000
+                            ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                        )}
+                      >
+                        1000 km
+                      </button>
+                      <button
+                        onClick={() => setRadius(2000)}
+                        className={clsx(
+                          "px-3 py-1 text-sm font-medium rounded-full transition-colors",
+                          radius === 2000
+                            ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                        )}
+                      >
+                        2000 km
+                      </button>
+                    </div>
+                  </div>
                   <Select
                     label="Time Range"
                     value={timeRange}
@@ -117,6 +194,16 @@ function App() {
                     <option value="24h">Last 24 Hours</option>
                     <option value="7d">Last 7 Days</option>
                     <option value="30d">Last 30 Days</option>
+                  </Select>
+                  <Select
+                    label="Results Limit"
+                    value={limit.toString()}
+                    onChange={(e) => setLimit(Number(e.target.value))}
+                  >
+                    <option value="10">10 Records</option>
+                    <option value="25">25 Records</option>
+                    <option value="50">50 Records</option>
+                    <option value="100">100 Records</option>
                   </Select>
                 </div>
               </div>
@@ -134,6 +221,7 @@ function App() {
                     earthquakes={earthquakes}
                     center={[latitude, longitude]}
                     zoom={6}
+                    radius={radius}
                     onCenterChange={(lat, lng) => {
                       setLatitude(lat);
                       setLongitude(lng);
