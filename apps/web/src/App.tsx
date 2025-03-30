@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { EarthquakeMap } from './components/EarthquakeMap';
+import { RecentEarthquakes } from './components/RecentEarthquakes';
 import { api } from './services/api';
 import { EarthquakeFeature } from './types/earthquake';
 import { SettingsIcon, ChartIcon, MapIcon, ErrorIcon } from './components/icons';
@@ -156,6 +157,9 @@ function App() {
               />
             </div>
           </Card>
+
+          {/* Recent Earthquakes Card */}
+          <RecentEarthquakes earthquakes={earthquakes} />
         </div>
 
         {/* Error Message */}
