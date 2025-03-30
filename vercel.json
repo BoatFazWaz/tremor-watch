@@ -1,0 +1,12 @@
+{
+  "buildCommand": "turbo run build --filter=web...",
+  "installCommand": "pnpm install",
+  "framework": "vite",
+  "outputDirectory": "apps/web/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

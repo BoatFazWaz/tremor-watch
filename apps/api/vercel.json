@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "buildCommand": "turbo run build --filter=api...",
+  "installCommand": "pnpm install",
+  "framework": "express",
+  "outputDirectory": "dist",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/index.js"
+    }
+  ]
+}
