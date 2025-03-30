@@ -9,6 +9,7 @@ import {
   FilterIcon,
   InfoIcon
 } from './icons';
+import clsx from 'clsx';
 
 interface RecentEarthquakesProps {
   earthquakes: EarthquakeFeature[];
@@ -279,31 +280,46 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setMinMagnitude(6)}
-              className="px-3 py-1 text-sm font-medium text-red-800 bg-red-100 rounded-full hover:bg-red-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-red-100 text-red-800 hover:bg-red-200"
+              )}
             >
               Magnitude ≥ 6.0
             </button>
             <button
               onClick={() => setMinMagnitude(5)}
-              className="px-3 py-1 text-sm font-medium text-orange-800 bg-orange-100 rounded-full hover:bg-orange-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-orange-100 text-orange-800 hover:bg-orange-200"
+              )}
             >
               Magnitude ≥ 5.0
             </button>
             <button
               onClick={() => setMinMagnitude(4)}
-              className="px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full hover:bg-yellow-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+              )}
             >
               Magnitude ≥ 4.0
             </button>
             <button
               onClick={() => setMinMagnitude(3)}
-              className="px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full hover:bg-green-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-green-100 text-green-800 hover:bg-green-200"
+              )}
             >
               Magnitude ≥ 3.0
             </button>
             <button
               onClick={() => setMinMagnitude('')}
-              className="px-3 py-1 text-sm font-medium text-gray-800 bg-gray-100 rounded-full hover:bg-gray-200"
+              className={clsx(
+                "px-3 py-1 text-sm font-medium rounded-full",
+                "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              )}
             >
               Clear Filters
             </button>
@@ -379,15 +395,16 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
                       {formatDate(earthquake.properties.time)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      <span className={clsx(
+                        "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
                         earthquake.properties.mag >= 6
-                          ? 'bg-red-100 text-red-800'
+                          ? "bg-red-100 text-red-800"
                           : earthquake.properties.mag >= 5
-                          ? 'bg-orange-100 text-orange-800'
+                          ? "bg-orange-100 text-orange-800"
                           : earthquake.properties.mag >= 4
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}>
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-green-100 text-green-800"
+                      )}>
                         {earthquake.properties.mag.toFixed(1)}
                       </span>
                     </td>
@@ -400,11 +417,12 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
                       {earthquake.geometry.coordinates[2].toFixed(1)} km
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      <span className={clsx(
+                        "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
                         earthquake.properties.status === 'reviewed'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      )}>
                         {earthquake.properties.status}
                       </span>
                     </td>
@@ -504,14 +522,20 @@ export function RecentEarthquakes({ earthquakes, loading = false }: RecentEarthq
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={clsx(
+                  "px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50",
+                  currentPage === 1 && "opacity-50 cursor-not-allowed"
+                )}
               >
                 Previous
               </button>
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={clsx(
+                  "px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50",
+                  currentPage === totalPages && "opacity-50 cursor-not-allowed"
+                )}
               >
                 Next
               </button>
