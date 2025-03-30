@@ -1,14 +1,38 @@
-# Tremor Watch
+# Tremor Watch 🌍
 
-A real-time earthquake monitoring application that provides earthquake data visualization and analysis.
+A real-time earthquake monitoring application that provides earthquake data visualization and analysis using USGS data.
 
 ## Features
 
-- Real-time earthquake data from USGS
-- Interactive map visualization
-- Location-based earthquake queries
-- Historical data analysis
-- Responsive design
+- 🌐 Real-time earthquake data from USGS
+- 🗺️ Interactive map visualization with custom markers
+- 📍 Location-based earthquake queries
+- 📊 Historical data analysis with customizable time ranges
+- 📱 Responsive design for all devices
+- 🔄 Real-time data refresh
+- 📈 Statistical analysis of earthquake data
+
+## Tech Stack
+
+- **Frontend**: React + Vite + TypeScript
+- **UI Components**: Tremor
+- **Backend**: Express.js + TypeScript
+- **Containerization**: Docker
+- **Package Manager**: pnpm
+- **Build Tool**: Turborepo
+
+## Project Structure
+
+```
+tremor-watch/
+├── apps/
+│   ├── api/           # Express.js backend
+│   └── web/           # React frontend
+├── packages/          # Shared packages
+├── docker-compose.yml
+├── package.json
+└── turbo.json
+```
 
 ## API Endpoints
 
@@ -35,15 +59,15 @@ Query Parameters:
 
 Example:
 ```http
-GET /earthquakes/location?latitude=37.7749&longitude=-122.4194&radius=1000
+GET /earthquakes/location?latitude=13.7454881&longitude=100.5622455&radius=1000
 ```
 
 ## Development
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- pnpm (v8 or higher)
+- Node.js (v20 or higher)
+- pnpm (v10.7.0 or higher)
 - Docker (optional)
 
 ### Environment Variables
@@ -95,25 +119,25 @@ Run tests with coverage:
 pnpm test:coverage
 ```
 
-## Project Structure
-
-```
-tremor-watch/
-├── packages/
-│   ├── api/           # Express.js backend
-│   └── ui/            # React frontend
-├── docker-compose.yml
-└── package.json
+Run tests with UI:
+```bash
+pnpm test:ui
 ```
 
 ## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+3. Commit your changes following the [Conventional Commits](https://www.conventionalcommits.org/) specification
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/) for providing the earthquake data
+- [Tremor](https://www.tremor.so/) for the beautiful UI components
+- [OpenStreetMap](https://www.openstreetmap.org/) for the map data

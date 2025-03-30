@@ -1,13 +1,13 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:23.10.0 AS builder
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and turbo
+RUN npm install -g pnpm@10.7.0 turbo
 
 # Copy package files
-COPY package.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
 # Install all dependencies (including devDependencies)
 RUN pnpm install
@@ -19,15 +19,15 @@ COPY . .
 RUN pnpm build
 
 # Development stage
-FROM node:20-alpine AS development
+FROM node:23.10.0 AS development
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and turbo
+RUN npm install -g pnpm@10.7.0 turbo
 
 # Copy package files
-COPY package.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
 # Install all dependencies (including devDependencies)
 RUN pnpm install
@@ -44,15 +44,15 @@ EXPOSE 5123
 CMD ["pnpm", "run", "dev"]
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:23.10.0 AS production
 
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and turbo
+RUN npm install -g pnpm@10.7.0 turbo
 
 # Copy package files
-COPY package.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
 # Install production dependencies only
 RUN pnpm install --prod

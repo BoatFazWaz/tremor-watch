@@ -1,13 +1,12 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: production
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-    env_file:
-      - .env
+    image: node:23.10.0
     restart: unless-stopped
+    working_dir: /usr/src/app
+    expose:
+      - 3000
+    tty: true
+    volumes:
+      - ./:/usr/src/app
