@@ -4,7 +4,7 @@ import { THAI_REGIONS } from '../constants/locations';
 import clsx from 'clsx';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // Add custom styles for the date picker
 import "./date-picker.css";
@@ -38,6 +38,17 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
 }) => {
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const [startDate, endDate] = dateRange;
+  const [localRadius, setLocalRadius] = useState(radius);
+
+  // Update local radius when prop changes
+  useEffect(() => {
+    setLocalRadius(radius);
+  }, [radius]);
+
+  const handleRadiusChange = (value: number) => {
+    setLocalRadius(value);
+    onRadiusChange(value);
+  };
 
   const handleDateRangeChange = (update: [Date | null, Date | null]) => {
     setDateRange(update);
@@ -113,9 +124,6 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
         <div className="space-y-4">
           {/* Preset Regions Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Quick Select Region
-            </label>
             <div className="flex gap-2">
               <button
                 onClick={handleGetCurrentLocation}
@@ -165,9 +173,6 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
 
           {/* Coordinates and Radius Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Custom Coordinates & Radius
-            </label>
             <div className="grid grid-cols-3 gap-2">
               <div>
                 <label className="block text-xs text-gray-500 mb-1">
@@ -201,14 +206,16 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
                     Radius
                   </label>
                   <span className="text-xs text-gray-500">
-                    {radius} km
+                    {localRadius} km
                   </span>
                 </div>
                 <div className="space-y-2">
                   <input
                     type="range"
-                    value={radius}
-                    onChange={(e) => onRadiusChange(Number(e.target.value))}
+                    value={localRadius}
+                    onChange={(e) => setLocalRadius(Number(e.target.value))}
+                    onMouseUp={(e) => onRadiusChange(Number(e.currentTarget.value))}
+                    onTouchEnd={(e) => onRadiusChange(Number((e.target as HTMLInputElement).value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                     min="100"
                     max="5000"
@@ -219,10 +226,10 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
                       {[1000, 2000, 5000].map((value) => (
                         <button
                           key={value}
-                          onClick={() => onRadiusChange(value)}
+                          onClick={() => handleRadiusChange(value)}
                           className={clsx(
                             "px-1.5 py-0.5 text-xs font-medium rounded-full transition-colors",
-                            radius === value
+                            localRadius === value
                               ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
                               : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                           )}
@@ -240,9 +247,6 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
           {/* Time Range and Limit Section */}
           <div className="grid grid-cols-6 gap-4">
             <div className="col-span-4">
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                Date Range
-              </label>
               <div className="space-y-2">
                 <div className="relative">
                   <DatePicker
@@ -295,9 +299,6 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-600 mb-2">
-                Results Limit
-              </label>
               <select
                 id="limit"
                 value={limit}
