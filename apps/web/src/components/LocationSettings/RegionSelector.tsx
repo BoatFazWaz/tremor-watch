@@ -10,12 +10,13 @@ interface RegionSelectorProps {
 
 export function RegionSelector({ selectedRegion, onRegionChange, onGetCurrentLocation }: RegionSelectorProps) {
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-col sm:flex-row gap-2">
       <button
         onClick={onGetCurrentLocation}
         className={clsx(
-          'px-3 py-2 text-sm font-medium rounded-md transition-colors inline-flex items-center gap-1.5',
-          'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+          'px-3 py-2 text-sm font-medium rounded-md transition-colors inline-flex items-center justify-center gap-1.5',
+          'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300',
+          'w-full sm:basis-1/3'
         )}
       >
         <svg 

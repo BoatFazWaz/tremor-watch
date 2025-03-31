@@ -23,7 +23,7 @@ export function CoordinatesControl({
   onRadiusChange
 }: CoordinatesControlProps) {
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2" data-testid="coordinates-control">
       <div>
         <Input
           label="Latitude"
@@ -44,7 +44,7 @@ export function CoordinatesControl({
           step="0.0001"
         />
       </div>
-      <div>
+      <div className="col-span-2 md:col-span-1" data-testid="radius-section">
         <div className="flex justify-between items-center mb-1">
           <label className="block text-xs text-gray-500">
             Radius
@@ -66,19 +66,19 @@ export function CoordinatesControl({
             step="100"
           />
           <div className="flex justify-between items-center">
-            <div className="flex gap-1">
+            <div className="flex gap-1.5">
               {[1000, 2000, 5000].map((value) => (
                 <button
                   key={value}
                   onClick={() => onRadiusChange(value)}
                   className={clsx(
-                    "px-1.5 py-0.5 text-xs font-medium rounded-full transition-colors",
+                    "px-2 py-1 text-xs font-medium rounded-full transition-colors",
                     localRadius === value
                       ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
                       : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
                   )}
                 >
-                  {value}
+                  {value}km
                 </button>
               ))}
             </div>

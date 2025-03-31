@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '../test/utils';
 import { Header } from './Header';
 
@@ -10,52 +10,131 @@ describe('Header', () => {
     onToggleLiveFetch: vi.fn(),
   };
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders the title correctly', () => {
     render(<Header {...defaultProps} />);
     expect(screen.getByText('Tremor Watch')).toBeInTheDocument();
   });
 
-  it('renders the live data badge', () => {
+  it('renders the beta badge', () => {
     render(<Header {...defaultProps} />);
-    expect(screen.getByText('Live Data')).toBeInTheDocument();
+    expect(screen.getByText('Beta')).toBeInTheDocument();
   });
 
-  it('renders the live monitoring button', () => {
-    render(<Header {...defaultProps} />);
-    expect(screen.getByText('Start Live Monitoring')).toBeInTheDocument();
+  describe('Desktop View', () => {
+    it('renders the live monitoring button', () => {
+      render(<Header {...defaultProps} />);
+      const desktopNav = screen.getByRole('navigation', { name: /desktop navigation/i });
+      const button = screen.getAllByText('Start Live Monitoring')[0];
+      expect(button).toBeInTheDocument();
+      expect(desktopNav).toHaveClass('hidden', 'sm:flex');
+    });
+
+    it('changes live monitoring button text when enabled', () => {
+      render(<Header {...defaultProps} isLiveFetchEnabled={true} />);
+      const desktopNav = screen.getByRole('navigation', { name: /desktop navigation/i });
+      const button = screen.getAllByText('Live Monitoring')[0];
+      expect(button).toBeInTheDocument();
+      expect(desktopNav).toHaveClass('hidden', 'sm:flex');
+    });
+
+    it('renders the refresh button', () => {
+      render(<Header {...defaultProps} />);
+      const desktopNav = screen.getByRole('navigation', { name: /desktop navigation/i });
+      const button = screen.getAllByText('Refresh Data')[0];
+      expect(button).toBeInTheDocument();
+      expect(desktopNav).toHaveClass('hidden', 'sm:flex');
+    });
+
+    it('renders the GitHub link', () => {
+      render(<Header {...defaultProps} />);
+      const desktopNav = screen.getByRole('navigation', { name: /desktop navigation/i });
+      const githubLinks = screen.getAllByText('View on GitHub');
+      const githubLink = githubLinks[0];
+      expect(githubLink).toBeInTheDocument();
+      expect(githubLink.closest('a')).toHaveAttribute(
+        'href',
+        'https://github.com/BoatFazWaz/tremor-watch'
+      );
+      expect(desktopNav).toHaveClass('hidden', 'sm:flex');
+    });
   });
 
-  it('changes live monitoring button text when enabled', () => {
-    render(<Header {...defaultProps} isLiveFetchEnabled={true} />);
-    expect(screen.getByText('Live Monitoring')).toBeInTheDocument();
-  });
+  describe('Mobile View', () => {
+    it('renders the burger menu button on mobile', () => {
+      render(<Header {...defaultProps} />);
+      const burgerButton = screen.getByRole('button', { name: /toggle menu/i });
+      expect(burgerButton).toBeInTheDocument();
+      expect(burgerButton).toHaveClass('sm:hidden');
+    });
 
-  it('renders the refresh button', () => {
-    render(<Header {...defaultProps} />);
-    expect(screen.getByText('Refresh Data')).toBeInTheDocument();
-  });
+    it('shows mobile menu when burger button is clicked', () => {
+      render(<Header {...defaultProps} />);
+      const burgerButton = screen.getByRole('button', { name: /toggle menu/i });
+      
+      // Initially menu should be hidden
+      const mobileNav = screen.getByRole('navigation', { name: /mobile menu/i });
+      expect(mobileNav).toHaveClass('opacity-0', 'invisible');
+      
+      // Click burger button
+      fireEvent.click(burgerButton);
+      
+      // Menu should be visible
+      expect(mobileNav).toHaveClass('opacity-100', 'visible');
+    });
 
-  it('calls onRefresh when refresh button is clicked', () => {
-    const onRefresh = vi.fn();
-    render(<Header {...defaultProps} onRefresh={onRefresh} />);
-    fireEvent.click(screen.getByText('Refresh Data'));
-    expect(onRefresh).toHaveBeenCalled();
-  });
+    it('hides mobile menu when burger button is clicked again', () => {
+      render(<Header {...defaultProps} />);
+      const burgerButton = screen.getByRole('button', { name: /toggle menu/i });
+      
+      // Open menu
+      fireEvent.click(burgerButton);
+      
+      // Click again to close
+      fireEvent.click(burgerButton);
+      
+      // Menu should be hidden
+      const mobileNav = screen.getByRole('navigation', { name: /mobile menu/i });
+      expect(mobileNav).toHaveClass('opacity-0', 'invisible');
+    });
 
-  it('calls onToggleLiveFetch when live monitoring button is clicked', () => {
-    const onToggleLiveFetch = vi.fn();
-    render(<Header {...defaultProps} onToggleLiveFetch={onToggleLiveFetch} />);
-    fireEvent.click(screen.getByText('Start Live Monitoring'));
-    expect(onToggleLiveFetch).toHaveBeenCalled();
-  });
+    it('closes mobile menu after clicking a menu item', () => {
+      render(<Header {...defaultProps} />);
+      const burgerButton = screen.getByRole('button', { name: /toggle menu/i });
+      
+      // Open menu
+      fireEvent.click(burgerButton);
+      
+      // Click a menu item
+      fireEvent.click(screen.getAllByText('Refresh Data')[1]); // Use the mobile menu button
+      
+      // Menu should be hidden
+      const mobileNav = screen.getByRole('navigation', { name: /mobile menu/i });
+      expect(mobileNav).toHaveClass('opacity-0', 'invisible');
+      
+      // Action should be called
+      expect(defaultProps.onRefresh).toHaveBeenCalled();
+    });
 
-  it('renders the GitHub link', () => {
-    render(<Header {...defaultProps} />);
-    const githubLink = screen.getByText('View on GitHub');
-    expect(githubLink).toBeInTheDocument();
-    expect(githubLink.closest('a')).toHaveAttribute(
-      'href',
-      'https://github.com/BoatFazWaz/tremor-watch'
-    );
+    it('calls onToggleLiveFetch from mobile menu', () => {
+      render(<Header {...defaultProps} />);
+      const burgerButton = screen.getByRole('button', { name: /toggle menu/i });
+      
+      // Open menu
+      fireEvent.click(burgerButton);
+      
+      // Click live monitoring button
+      fireEvent.click(screen.getAllByText('Start Live Monitoring')[1]); // Use the mobile menu button
+      
+      // Action should be called
+      expect(defaultProps.onToggleLiveFetch).toHaveBeenCalled();
+      
+      // Menu should be hidden
+      const mobileNav = screen.getByRole('navigation', { name: /mobile menu/i });
+      expect(mobileNav).toHaveClass('opacity-0', 'invisible');
+    });
   });
 }); 
