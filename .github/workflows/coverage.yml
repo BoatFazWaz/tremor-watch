@@ -13,14 +13,23 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.7.0
+          run_install: false
+
       - name: Set up Node
         uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
-        run: npx vitest run --coverage
+        run: cd apps/web && npx vitest run --coverage
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5
