@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/BoatFazWaz/tremor-watch/graph/badge.svg?token=3FMC8BYIBU)](https://codecov.io/gh/BoatFazWaz/tremor-watch)
+
 # Tremor Watch
 
 A modern web application for real-time earthquake monitoring and visualization.
