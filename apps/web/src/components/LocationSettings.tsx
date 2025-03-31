@@ -45,6 +45,35 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
     setLocalRadius(radius);
   }, [radius]);
 
+  // Update date range when time range changes
+  useEffect(() => {
+    const now = new Date();
+    let start = new Date();
+    
+    switch (timeRange) {
+      case '1h':
+        start.setHours(now.getHours() - 1);
+        break;
+      case '24h':
+        start.setDate(now.getDate() - 1);
+        break;
+      case '7d':
+        start.setDate(now.getDate() - 7);
+        break;
+      case '14d':
+        start.setDate(now.getDate() - 14);
+        break;
+      case '30d':
+        start.setDate(now.getDate() - 30);
+        break;
+      default:
+        // If no time range is selected, don't update the date range
+        return;
+    }
+    
+    setDateRange([start, now]);
+  }, [timeRange]);
+
   const handleRadiusChange = (value: number) => {
     setLocalRadius(value);
     onRadiusChange(value);
@@ -60,6 +89,8 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
         onTimeRangeChange('24h');
       } else if (diffHours <= 168) { // 7 days
         onTimeRangeChange('7d');
+      } else if (diffHours <= 336) { // 14 days
+        onTimeRangeChange('14d');
       } else {
         onTimeRangeChange('30d');
       }
