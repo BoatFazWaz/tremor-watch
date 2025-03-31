@@ -2,6 +2,12 @@ import { Card } from './ui/Card';
 import { SettingsIcon } from './icons';
 import { THAI_REGIONS } from '../constants/locations';
 import clsx from 'clsx';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import { useState } from 'react';
+
+// Add custom styles for the date picker
+import "./date-picker.css";
 
 interface LocationSettingsProps {
   latitude: number;
@@ -14,6 +20,7 @@ interface LocationSettingsProps {
   onRadiusChange: (value: number) => void;
   onTimeRangeChange: (value: string) => void;
   onLimitChange: (value: number) => void;
+  onRefresh?: () => void;
 }
 
 export const LocationSettings: React.FC<LocationSettingsProps> = ({
@@ -27,7 +34,29 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
   onRadiusChange,
   onTimeRangeChange,
   onLimitChange,
+  onRefresh
 }) => {
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [startDate, endDate] = dateRange;
+
+  const handleDateRangeChange = (update: [Date | null, Date | null]) => {
+    setDateRange(update);
+    if (update[0] && update[1]) {
+      const diffHours = Math.abs(update[1].getTime() - update[0].getTime()) / 36e5;
+      if (diffHours <= 1) {
+        onTimeRangeChange('1h');
+      } else if (diffHours <= 24) {
+        onTimeRangeChange('24h');
+      } else if (diffHours <= 168) { // 7 days
+        onTimeRangeChange('7d');
+      } else {
+        onTimeRangeChange('30d');
+      }
+      // Trigger refetch after updating the time range
+      onRefresh?.();
+    }
+  };
+
   const handleRegionSelect = (lat: number, lng: number) => {
     onLatitudeChange(lat);
     onLongitudeChange(lng);
@@ -54,34 +83,45 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
     }
   };
 
-  const isCurrentLocationSelected = () => {
-    // If any region is selected, current location is not selected
-    if (THAI_REGIONS.some(region => isSelectedRegion(region.latitude, region.longitude))) {
-      return false;
+  const getCurrentSelectedRegion = () => {
+    const selectedRegion = THAI_REGIONS.find(region => 
+      isSelectedRegion(region.latitude, region.longitude)
+    );
+    return selectedRegion ? `${selectedRegion.latitude},${selectedRegion.longitude}` : '';
+  };
+
+  const handleRegionChange = (value: string) => {
+    if (value === 'current') {
+      handleGetCurrentLocation();
+      return;
     }
-    // Check if we have a location that doesn't match any preset region
-    return false; // By default, assume current location is not selected
+    
+    if (value) {
+      const [lat, lng] = value.split(',').map(Number);
+      handleRegionSelect(lat, lng);
+    }
   };
 
   return (
-    <Card className="lg:col-span-3">
-      <div className="p-6">
-        <div className="flex items-center gap-2 mb-6">
+    <Card>
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-4">
           <SettingsIcon />
           <h2 className="text-lg font-semibold text-gray-900">Location Settings</h2>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Preset Regions Section */}
           <div>
-            <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
+            <label className="block text-sm font-medium text-gray-600 mb-2">
+              Quick Select Region
+            </label>
+            <div className="flex gap-2">
               <button
                 onClick={handleGetCurrentLocation}
                 className={clsx(
                   'px-3 py-2 text-sm font-medium rounded-md transition-colors inline-flex items-center gap-1.5',
-                  isCurrentLocationSelected()
-                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                  'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                 )}
               >
                 <svg 
@@ -105,111 +145,168 @@ export const LocationSettings: React.FC<LocationSettingsProps> = ({
                 </svg>
                 Current Location
               </button>
-              {THAI_REGIONS.map((region) => (
-                <button
-                  key={region.name}
-                  onClick={() => handleRegionSelect(region.latitude, region.longitude)}
-                  className={clsx(
-                    'px-3 py-2 text-sm font-medium rounded-md transition-colors',
-                    isSelectedRegion(region.latitude, region.longitude)
-                      ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                  )}
-                >
-                  {region.name}
-                </button>
-              ))}
+              <select
+                value={getCurrentSelectedRegion()}
+                onChange={(e) => handleRegionChange(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="">Select Region</option>
+                {THAI_REGIONS.map((region) => (
+                  <option 
+                    key={region.name} 
+                    value={`${region.latitude},${region.longitude}`}
+                  >
+                    {region.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* All Other Inputs */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Latitude
-              </label>
-              <input
-                type="number"
-                value={latitude}
-                onChange={(e) => onLatitudeChange(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter latitude"
-                step="0.0001"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Longitude
-              </label>
-              <input
-                type="number"
-                value={longitude}
-                onChange={(e) => onLongitudeChange(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter longitude"
-                step="0.0001"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Radius (km)
-              </label>
-              <div className="space-y-2">
+          {/* Coordinates and Radius Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-2">
+              Custom Coordinates & Radius
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  Latitude
+                </label>
                 <input
                   type="number"
-                  value={radius}
-                  onChange={(e) => onRadiusChange(Number(e.target.value))}
+                  value={latitude}
+                  onChange={(e) => onLatitudeChange(Number(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Enter radius"
-                  min="1"
-                  max="20000"
+                  placeholder="Enter latitude"
+                  step="0.0001"
                 />
-                <div className="flex flex-wrap gap-2">
-                  {[1000, 2000].map((value) => (
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  value={longitude}
+                  onChange={(e) => onLongitudeChange(Number(e.target.value))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Enter longitude"
+                  step="0.0001"
+                />
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-xs text-gray-500">
+                    Radius
+                  </label>
+                  <span className="text-xs text-gray-500">
+                    {radius} km
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="range"
+                    value={radius}
+                    onChange={(e) => onRadiusChange(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    min="100"
+                    max="5000"
+                    step="100"
+                  />
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-1">
+                      {[1000, 2000, 5000].map((value) => (
+                        <button
+                          key={value}
+                          onClick={() => onRadiusChange(value)}
+                          className={clsx(
+                            "px-1.5 py-0.5 text-xs font-medium rounded-full transition-colors",
+                            radius === value
+                              ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                              : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                          )}
+                        >
+                          {value}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Time Range and Limit Section */}
+          <div className="grid grid-cols-6 gap-4">
+            <div className="col-span-4">
+              <label className="block text-sm font-medium text-gray-600 mb-2">
+                Date Range
+              </label>
+              <div className="space-y-2">
+                <div className="relative">
+                  <DatePicker
+                    selectsRange={true}
+                    startDate={startDate}
+                    endDate={endDate}
+                    onChange={(update) => handleDateRangeChange(update)}
+                    isClearable={true}
+                    placeholderText="Select date range"
+                    maxDate={new Date()}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white"
+                    dateFormat="MMM d, yyyy"
+                    calendarClassName="date-picker-custom"
+                    wrapperClassName="date-picker-wrapper"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { label: 'Last Hour', value: '1h' },
+                    { label: 'Last 24h', value: '24h' },
+                    { label: 'Last 7d', value: '7d' },
+                    { label: 'Last 14d', value: '14d' },
+                    { label: 'Last 30d', value: '30d' }
+                  ].map((option) => (
                     <button
-                      key={value}
-                      onClick={() => onRadiusChange(value)}
+                      key={option.value}
+                      onClick={() => {
+                        onTimeRangeChange(option.value);
+                        const now = new Date();
+                        let start = new Date();
+                        if (option.value === '1h') start.setHours(now.getHours() - 1);
+                        if (option.value === '24h') start.setDate(now.getDate() - 1);
+                        if (option.value === '7d') start.setDate(now.getDate() - 7);
+                        if (option.value === '14d') start.setDate(now.getDate() - 14);
+                        if (option.value === '30d') start.setDate(now.getDate() - 30);
+                        setDateRange([start, now]);
+                      }}
                       className={clsx(
-                        "px-3 py-1 text-sm font-medium rounded-full transition-colors",
-                        radius === value
-                          ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                          : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+                        "px-2 py-1 text-xs font-medium rounded-md transition-colors",
+                        timeRange === option.value
+                          ? "bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                          : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300"
                       )}
                     >
-                      {value} km
+                      {option.label}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
-                Time Range
-              </label>
-              <select
-                value={timeRange}
-                onChange={(e) => onTimeRangeChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                <option value="1h">Last Hour</option>
-                <option value="24h">Last 24 Hours</option>
-                <option value="7d">Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-600 mb-2">
                 Results Limit
               </label>
               <select
+                id="limit"
                 value={limit}
                 onChange={(e) => onLimitChange(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6"
               >
-                <option value={10}>10 Records</option>
-                <option value={25}>25 Records</option>
-                <option value={50}>50 Records</option>
-                <option value={100}>100 Records</option>
+                <option value={50}>50 results</option>
+                <option value={100}>100 results</option>
+                <option value={200}>200 results</option>
               </select>
             </div>
           </div>

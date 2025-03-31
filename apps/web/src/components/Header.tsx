@@ -16,11 +16,11 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-gray-900">Tremor Watch</h1>
-            <span className="px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900">Tremor Watch</h1>
+            <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
               Live Data
             </span>
           </div>
