@@ -8,8 +8,9 @@ import {
   DownloadIcon,
   FilterIcon
 } from './icons';
-import { EarthquakeDetailsModal } from './EarthquakeDetailsModal';
+import { EarthquakeDetailsDrawer } from './EarthquakeDetailsDrawer';
 import clsx from 'clsx';
+import { RecentEarthquakesControls } from './RecentEarthquakesControls';
 
 interface RecentEarthquakesProps {
   earthquakes: EarthquakeFeature[];
@@ -285,261 +286,279 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
   };
 
   return (
-    <Card className="lg:col-span-3">
-      <div className="h-[640px] flex flex-col">
-        <div className="p-6 flex flex-col h-full">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <ClockIcon />
-              <h2 className="text-lg font-semibold text-gray-900">Recent Earthquakes</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <button
-                  onClick={() => setShowSortMenu(!showSortMenu)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2"
-                >
-                  <span>Sort by: {sortField.charAt(0).toUpperCase() + sortField.slice(1)}</span>
-                  {sortDirection === 'asc' ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
-                </button>
-                {showSortMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
-                    <button
-                      onClick={() => {
-                        handleSort('time');
-                        setShowSortMenu(false);
-                      }}
-                      className={clsx(
-                        "block w-full text-left px-4 py-2 text-sm",
-                        sortField === 'time' 
-                          ? "bg-blue-50 text-blue-800" 
-                          : "text-gray-700 hover:bg-gray-100"
-                      )}
-                    >
-                      Time {sortField === 'time' && (
-                        sortDirection === 'asc' ? '(Oldest first)' : '(Latest first)'
-                      )}
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleSort('magnitude');
-                        setShowSortMenu(false);
-                      }}
-                      className={clsx(
-                        "block w-full text-left px-4 py-2 text-sm",
-                        sortField === 'magnitude' 
-                          ? "bg-blue-50 text-blue-800" 
-                          : "text-gray-700 hover:bg-gray-100"
-                      )}
-                    >
-                      Magnitude {sortField === 'magnitude' && (
-                        sortDirection === 'asc' ? '(Lowest first)' : '(Highest first)'
-                      )}
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleSort('distance');
-                        setShowSortMenu(false);
-                      }}
-                      className={clsx(
-                        "block w-full text-left px-4 py-2 text-sm",
-                        sortField === 'distance' 
-                          ? "bg-blue-50 text-blue-800" 
-                          : "text-gray-700 hover:bg-gray-100"
-                      )}
-                    >
-                      Distance {sortField === 'distance' && (
-                        sortDirection === 'asc' ? '(Nearest first)' : '(Farthest first)'
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="relative">
-                <button
-                  ref={exportButtonRef}
-                  onClick={() => setShowExportMenu(!showExportMenu)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  <DownloadIcon />
-                  Export
-                </button>
-                {showExportMenu && (
-                  <div 
-                    ref={exportMenuRef}
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
-                  >
-                    <button
-                      onClick={() => exportData('csv')}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Export as CSV
-                    </button>
-                    <button
-                      onClick={() => exportData('json')}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Export as JSON
-                    </button>
-                    <button
-                      onClick={() => exportData('excel')}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Export as Excel
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="mb-6">
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  value={searchLocation}
-                  onChange={(e) => {
-                    setSearchLocation(e.target.value);
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Search by location"
-                />
-              </div>
-
-              {/* Quick Filters */}
+    <>
+      <Card className="relative">
+        <div className="h-[640px] flex flex-col">
+          <div className="p-6 flex flex-col h-full">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                {[3.0, 4.0, 5.0, 6.0].map((mag) => (
-                  <button
-                    key={mag}
-                    onClick={() => setMinMagnitude(minMagnitude === mag ? 0 : mag)}
-                    className={clsx(
-                      "px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors",
-                      minMagnitude === mag
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300"
+                <ClockIcon />
+                <h2 className="text-lg font-semibold text-gray-900">Recent Earthquakes</h2>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Mobile Controls */}
+                <RecentEarthquakesControls
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  minMagnitude={minMagnitude}
+                  searchLocation={searchLocation}
+                  onSortChange={setSortField}
+                  onSortDirectionChange={setSortDirection}
+                  onMinMagnitudeChange={setMinMagnitude}
+                  onSearchLocationChange={setSearchLocation}
+                  onExport={exportData}
+                />
+
+                {/* Desktop Controls */}
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowSortMenu(!showSortMenu)}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <span>Sort by: {sortField.charAt(0).toUpperCase() + sortField.slice(1)}</span>
+                      {sortDirection === 'asc' ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
+                    </button>
+                    {showSortMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
+                        <button
+                          onClick={() => {
+                            handleSort('time');
+                            setShowSortMenu(false);
+                          }}
+                          className={clsx(
+                            "block w-full text-left px-4 py-2 text-sm",
+                            sortField === 'time' 
+                              ? "bg-blue-50 text-blue-800" 
+                              : "text-gray-700 hover:bg-gray-100"
+                          )}
+                        >
+                          Time {sortField === 'time' && (
+                            sortDirection === 'asc' ? '(Oldest first)' : '(Latest first)'
+                          )}
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleSort('magnitude');
+                            setShowSortMenu(false);
+                          }}
+                          className={clsx(
+                            "block w-full text-left px-4 py-2 text-sm",
+                            sortField === 'magnitude' 
+                              ? "bg-blue-50 text-blue-800" 
+                              : "text-gray-700 hover:bg-gray-100"
+                          )}
+                        >
+                          Magnitude {sortField === 'magnitude' && (
+                            sortDirection === 'asc' ? '(Lowest first)' : '(Highest first)'
+                          )}
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleSort('distance');
+                            setShowSortMenu(false);
+                          }}
+                          className={clsx(
+                            "block w-full text-left px-4 py-2 text-sm",
+                            sortField === 'distance' 
+                              ? "bg-blue-50 text-blue-800" 
+                              : "text-gray-700 hover:bg-gray-100"
+                          )}
+                        >
+                          Distance {sortField === 'distance' && (
+                            sortDirection === 'asc' ? '(Nearest first)' : '(Farthest first)'
+                          )}
+                        </button>
+                      </div>
                     )}
-                  >
-                    ≥ {mag.toFixed(1)}
-                  </button>
-                ))}
+                  </div>
+                  <div className="relative">
+                    <button
+                      ref={exportButtonRef}
+                      onClick={() => setShowExportMenu(!showExportMenu)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    >
+                      <DownloadIcon />
+                      Export
+                    </button>
+                    {showExportMenu && (
+                      <div 
+                        ref={exportMenuRef}
+                        className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"
+                      >
+                        <button
+                          onClick={() => exportData('csv')}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Export as CSV
+                        </button>
+                        <button
+                          onClick={() => exportData('json')}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Export as JSON
+                        </button>
+                        <button
+                          onClick={() => exportData('excel')}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Export as Excel
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Earthquakes Grid */}
-          <div className="flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto pr-2 space-y-4">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            {/* Desktop Filters */}
+            <div className="hidden sm:block mb-6">
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <input
+                    type="text"
+                    value={searchLocation}
+                    onChange={(e) => {
+                      setSearchLocation(e.target.value);
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Search by location"
+                  />
                 </div>
-              ) : filteredAndSortedEarthquakes.length === 0 ? (
-                <div className="text-center py-12">
-                  <FilterIcon className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No earthquakes found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Try adjusting your filters to see more results.
-                  </p>
-                </div>
-              ) : (
-                filteredAndSortedEarthquakes.map((earthquake) => {
-                  const distance = calculateDistance(
-                    latitude,
-                    longitude,
-                    earthquake.geometry.coordinates[1],
-                    earthquake.geometry.coordinates[0]
-                  );
 
-                  const effect = calculateEffect(
-                    earthquake.properties.mag,
-                    earthquake.geometry.coordinates[2],
-                    distance
-                  );
-
-                  const travelTimes = calculateArrivalTime(distance);
-                  
-                  return (
-                    <div 
-                      key={earthquake.id}
-                      onClick={() => setSelectedEarthquake(earthquake)}
-                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer p-4"
+                {/* Quick Filters */}
+                <div className="flex items-center gap-2">
+                  {[3.0, 4.0, 5.0, 6.0].map((mag) => (
+                    <button
+                      key={mag}
+                      onClick={() => setMinMagnitude(minMagnitude === mag ? '' : mag)}
+                      className={clsx(
+                        "px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap transition-colors",
+                        minMagnitude === mag
+                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                          : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-gray-300"
+                      )}
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          <div className="text-sm text-gray-500">
-                            {formatDate(earthquake.properties.time)}
+                      ≥ {mag.toFixed(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Earthquakes Grid */}
+            <div className="flex-1 overflow-hidden">
+              <div className="h-full overflow-y-auto pr-2 space-y-4">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  </div>
+                ) : filteredAndSortedEarthquakes.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FilterIcon className="mx-auto h-12 w-12 text-gray-400" />
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No earthquakes found</h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Try adjusting your filters to see more results.
+                    </p>
+                  </div>
+                ) : (
+                  filteredAndSortedEarthquakes.map((earthquake) => {
+                    const distance = calculateDistance(
+                      latitude,
+                      longitude,
+                      earthquake.geometry.coordinates[1],
+                      earthquake.geometry.coordinates[0]
+                    );
+
+                    const effect = calculateEffect(
+                      earthquake.properties.mag,
+                      earthquake.geometry.coordinates[2],
+                      distance
+                    );
+
+                    const travelTimes = calculateArrivalTime(distance);
+                    
+                    return (
+                      <div 
+                        key={earthquake.id}
+                        onClick={() => setSelectedEarthquake(earthquake)}
+                        className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer p-2 sm:p-4"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-0.5 sm:space-y-1 min-w-0">
+                            <div className="text-xs sm:text-sm text-gray-500">
+                              {formatDate(earthquake.properties.time)}
+                            </div>
+                            <div className="text-sm sm:text-base font-medium text-gray-900 truncate">
+                              {earthquake.properties.place}
+                            </div>
                           </div>
-                          <div className="text-base font-medium text-gray-900 max-w-[500px]">
-                            {earthquake.properties.place}
-                          </div>
-                        </div>
-                        <span className={clsx(
-                          "px-3 py-1 text-sm font-semibold rounded-full",
-                          earthquake.properties.mag >= 6
-                            ? "bg-red-100 text-red-800"
-                            : earthquake.properties.mag >= 5
-                            ? "bg-orange-100 text-orange-800"
-                            : earthquake.properties.mag >= 4
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-green-100 text-green-800"
-                        )}>
-                          M {earthquake.properties.mag.toFixed(1)}
-                        </span>
-                      </div>
-                      
-                      <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <div className="text-gray-500">Distance</div>
-                          <div className="font-medium">{distance.toFixed(0)} km</div>
-                        </div>
-                        <div>
-                          <div className="text-gray-500">Effect</div>
                           <span className={clsx(
-                            "px-2 py-0.5 text-xs font-semibold rounded-full",
-                            getEffectColor(effect)
+                            "shrink-0 px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm font-semibold rounded-full",
+                            earthquake.properties.mag >= 6
+                              ? "bg-red-100 text-red-800"
+                              : earthquake.properties.mag >= 5
+                              ? "bg-orange-100 text-orange-800"
+                              : earthquake.properties.mag >= 4
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-green-100 text-green-800"
                           )}>
-                            {effect}
+                            M {earthquake.properties.mag.toFixed(1)}
                           </span>
                         </div>
-                        <div>
-                          <div className="text-gray-500">P-Wave</div>
-                          <div className="font-medium">{travelTimes.pWave.formatted}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-3 text-xs text-gray-500 flex items-center gap-4">
-                        <div>
-                          Depth: {earthquake.geometry.coordinates[2].toFixed(1)} km
-                        </div>
-                        {earthquake.properties.tsunami === 1 && (
-                          <div className="text-orange-600 font-medium flex items-center gap-1">
-                            Tsunami Warning
-                          </div>
-                        )}
-                        {earthquake.properties.felt && (
+                        
+                        <div className="mt-2 sm:mt-3 grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
                           <div>
-                            Felt by {earthquake.properties.felt} people
+                            <div className="text-gray-500">Distance</div>
+                            <div className="font-medium">{distance.toFixed(0)} km</div>
                           </div>
-                        )}
+                          <div>
+                            <div className="text-gray-500">Effect</div>
+                            <span className={clsx(
+                              "px-1.5 sm:px-2 py-0.5 text-xs font-semibold rounded-full",
+                              getEffectColor(effect)
+                            )}>
+                              {effect}
+                            </span>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">P-Wave</div>
+                            <div className="font-medium">{travelTimes.pWave.formatted}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-2 sm:mt-3 text-[10px] sm:text-xs text-gray-500 flex flex-wrap items-center gap-2 sm:gap-4">
+                          <div>
+                            Depth: {earthquake.geometry.coordinates[2].toFixed(1)} km
+                          </div>
+                          {earthquake.properties.tsunami === 1 && (
+                            <div className="text-orange-600 font-medium flex items-center gap-1">
+                              Tsunami Warning
+                            </div>
+                          )}
+                          {earthquake.properties.felt && (
+                            <div>
+                              Felt by {earthquake.properties.felt} people
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
-
-          {/* Earthquake Details Modal */}
-          <EarthquakeDetailsModal
-            earthquake={selectedEarthquake}
-            onClose={() => setSelectedEarthquake(null)}
-            latitude={latitude}
-            longitude={longitude}
-          />
         </div>
-      </div>
-    </Card>
+      </Card>
+
+      <EarthquakeDetailsDrawer
+        earthquake={selectedEarthquake}
+        onClose={() => setSelectedEarthquake(null)}
+        latitude={latitude}
+        longitude={longitude}
+      />
+    </>
   );
 } 

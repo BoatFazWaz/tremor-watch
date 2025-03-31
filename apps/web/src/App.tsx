@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import RootLayout from './app/layout';
 import { Header } from './components/Header';
-import { LocationSettings } from './components/LocationSettings';
+import { LocationSettings } from './components/LocationSettings/index';
 import { MapSection } from './components/MapSection';
 import { RecentEarthquakes } from './components/RecentEarthquakes';
 import { useEarthquakes } from './hooks/useEarthquakes';
@@ -45,8 +45,8 @@ function App() {
           />
           
           <main className="w-full h-full px-4 py-8">
-            <div className="grid grid-cols-6 gap-6 h-full">
-              <div className="col-span-4 h-full">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 md:gap-6 h-full">
+              <div className="col-span-1 md:col-span-4 h-[400px] md:h-full">
                 <MapSection
                   earthquakes={earthquakes}
                   latitude={latitude}
@@ -59,7 +59,7 @@ function App() {
                 />
               </div>
 
-              <div className="col-span-2">
+              <div className="col-span-1 md:col-span-2">
                 <LocationSettings
                   latitude={latitude}
                   longitude={longitude}
@@ -74,7 +74,7 @@ function App() {
                   onRefresh={refetch}
                 />
 
-                <div className="mt-6">
+                <div className="mt-4 md:mt-6">
                   <RecentEarthquakes 
                     earthquakes={earthquakes} 
                     loading={loading}

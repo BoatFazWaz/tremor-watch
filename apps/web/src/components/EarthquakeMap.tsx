@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import './EarthquakeMap.css';
 import { EarthquakeFeature } from '../types/earthquake';
 
 interface EarthquakeMapProps {
@@ -237,7 +238,7 @@ export function EarthquakeMap({
     });
   }, [earthquakes, selectedLocation]);
 
-  return <div id={containerId} style={{ height: '100%', width: '100%' }} />;
+  return <div id={containerId} className="map-container" style={{ height: '100%', width: '100%' }} />;
 }
 
 function getMagnitudeColor(magnitude: number): string {

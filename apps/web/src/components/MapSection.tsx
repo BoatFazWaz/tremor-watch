@@ -49,7 +49,7 @@ export const MapSection: React.FC<MapSectionProps> = ({
             key={key}
             earthquakes={earthquakes}
             center={[latitude, longitude]}
-            zoom={5}
+            zoom={window.innerWidth < 640 ? 3 : 5}
             radius={radius}
             onCenterChange={onCenterChange}
           />
