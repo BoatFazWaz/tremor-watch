@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { calculateStartTime, fetchEarthquakes } from '../earthquakeService';
-import { api } from '../api';
+import { calculateStartTime, fetchEarthquakes } from './earthquakeService';
+import { api } from './api';
 
 // Mock the api module
-vi.mock('../api', () => ({
+vi.mock('./api', () => ({
   api: {
     getEarthquakesByLocation: vi.fn()
   }

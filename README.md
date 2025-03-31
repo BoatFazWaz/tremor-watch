@@ -2,6 +2,10 @@
 
 A real-time earthquake monitoring application that provides earthquake data visualization and analysis using USGS data.
 
+## Live Demo
+
+Visit the live application at [https://tremor-watch.vercel.app/](https://tremor-watch.vercel.app/)
+
 ## Features
 
 - 🌐 Real-time earthquake data from USGS
@@ -11,6 +15,9 @@ A real-time earthquake monitoring application that provides earthquake data visu
 - 📱 Responsive design for all devices
 - 🔄 Real-time data refresh
 - 📈 Statistical analysis of earthquake data
+- 📅 Seismic wave arrival time calculations
+- 🔍 Customizable filters and sorting
+- 📄 Export data in multiple formats (CSV, JSON, Excel)
 
 ## Tech Stack
 

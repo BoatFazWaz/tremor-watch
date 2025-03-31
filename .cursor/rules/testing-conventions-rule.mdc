@@ -1,0 +1,21 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+name: test-file-location
+description: Rules for test file locations and naming conventions
+globs: **/*.test.{ts,tsx,js,jsx}
+---
+
+# Test File Location Rules
+
+## File Location
+- Test files should be located in the same directory as the source file they are testing
+- Test files should use the `.test` suffix before the file extension
+- Test file name should match the source file name
+
+## Naming Convention
+- For a source file: `Component.tsx`
+- The test file should be: `Component.test.tsx`

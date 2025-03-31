@@ -4,7 +4,7 @@ import {
   calculateArrivalTime, 
   calculateEffect,
   getEffectColor 
-} from '../../components/RecentEarthquakes';
+} from './RecentEarthquakes';
 
 describe('calculateDistance', () => {
   it('should calculate distance between two points correctly', () => {
@@ -26,11 +26,9 @@ describe('calculateDistance', () => {
 });
 
 describe('calculateArrivalTime', () => {
-  const testTimestamp = 1709692800000; // March 6, 2024 00:00:00 UTC
-
   it('should calculate P-wave and S-wave arrival times correctly', () => {
     const distance = 100; // 100 km
-    const result = calculateArrivalTime(distance, testTimestamp);
+    const result = calculateArrivalTime(distance);
     
     // P-wave velocity = 7 km/s, S-wave velocity = 4 km/s
     expect(result.pWave.seconds).toBe(100/7);
@@ -39,15 +37,15 @@ describe('calculateArrivalTime', () => {
 
   it('should format travel times correctly for different durations', () => {
     // Short distance
-    const shortResult = calculateArrivalTime(10, testTimestamp);
+    const shortResult = calculateArrivalTime(10);
     expect(shortResult.pWave.formatted).toMatch(/(\d+\s*(hr|min|sec|hour|minute|second)s?\s*)+/i);
 
     // Medium distance
-    const mediumResult = calculateArrivalTime(300, testTimestamp);
+    const mediumResult = calculateArrivalTime(300);
     expect(mediumResult.pWave.formatted).toMatch(/(\d+\s*(hr|min|sec|hour|minute|second)s?\s*)+/i);
 
     // Long distance
-    const longResult = calculateArrivalTime(25200, testTimestamp); // 7000 km
+    const longResult = calculateArrivalTime(25200); // 7000 km
     expect(longResult.pWave.formatted).toMatch(/(\d+\s*(hr|min|sec|hour|minute|second)s?\s*)+/i);
   });
 });

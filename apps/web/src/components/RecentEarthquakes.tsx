@@ -6,8 +6,7 @@ import {
   ChevronUpIcon, 
   ChevronDownIcon, 
   DownloadIcon,
-  FilterIcon,
-  InfoIcon
+  FilterIcon
 } from './icons';
 import { EarthquakeDetailsModal } from './EarthquakeDetailsModal';
 import clsx from 'clsx';
@@ -23,6 +22,17 @@ type SortField = 'time' | 'magnitude' | 'depth' | 'distance';
 type SortDirection = 'asc' | 'desc';
 type ExportFormat = 'csv' | 'json' | 'excel';
 
+export interface WaveTravelTimes {
+  pWave: {
+    seconds: number;
+    formatted: string;
+  };
+  sWave: {
+    seconds: number;
+    formatted: string;
+  };
+}
+
 interface EarthquakeData {
   time: string;
   magnitude: number;
@@ -34,17 +44,6 @@ interface EarthquakeData {
   felt: number;
   id: string;
   url: string;
-}
-
-interface WaveTravelTimes {
-  pWave: {
-    seconds: number;
-    formatted: string;
-  };
-  sWave: {
-    seconds: number;
-    formatted: string;
-  };
 }
 
 // Calculate distance between two points using Haversine formula
@@ -61,7 +60,7 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
 }
 
 // Calculate estimated arrival time of seismic waves
-export function calculateArrivalTime(distance: number, timestamp: number): WaveTravelTimes {
+export function calculateArrivalTime(distance: number): WaveTravelTimes {
   // P-waves (Primary waves) travel at approximately 6-8 km/s
   // Using average velocity of 7 km/s for P-waves
   const pWaveVelocity = 7; // km/s
@@ -149,11 +148,6 @@ function formatDate(timestamp: number): string {
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
   }).replace(/,/g, '');
 }
-
-const WAVE_INFO = {
-  P: "P-waves (Primary waves) are the fastest seismic waves, traveling through solids and liquids. They compress and expand material in the same direction they travel.",
-  S: "S-waves (Secondary waves) are slower seismic waves that can only travel through solids. They move material perpendicular to their direction of travel."
-};
 
 export function RecentEarthquakes({ earthquakes, loading = false, latitude, longitude }: RecentEarthquakesProps) {
   const [sortField, setSortField] = useState<SortField>('time');
@@ -517,7 +511,7 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
                     distance
                   );
 
-                  const travelTimes = calculateArrivalTime(distance, earthquake.properties.time);
+                  const travelTimes = calculateArrivalTime(distance);
                   
                   return (
                     <tr 
