@@ -1,6 +1,6 @@
-# Tremor Watch 🌍
+# Tremor Watch
 
-A real-time earthquake monitoring application that provides earthquake data visualization and analysis using USGS data.
+A modern web application for real-time earthquake monitoring and visualization.
 
 ## Live Demo
 
@@ -8,160 +8,89 @@ Visit the live application at [https://tremor-watch.vercel.app/](https://tremor-
 
 ## Features
 
-- 🌐 Real-time earthquake data from USGS
-- 🗺️ Interactive map visualization with custom markers
-- 📍 Location-based earthquake queries
-- 📊 Historical data analysis with customizable time ranges
-- 📱 Responsive design for all devices
-- 🔄 Real-time data refresh
-- 📈 Statistical analysis of earthquake data
-- 📅 Seismic wave arrival time calculations
-- 🔍 Customizable filters and sorting
-- 📄 Export data in multiple formats (CSV, JSON, Excel)
+- **Real-time Earthquake Data**: Track recent seismic activity worldwide
+- **Interactive Map**: Visual representation of earthquake locations with customizable radius
+- **Advanced Filtering**:
+  - Filter by magnitude (≥3.0, ≥4.0, ≥5.0, ≥6.0)
+  - Search by location
+  - Date range selection
+- **Detailed Information**: Access comprehensive earthquake details including:
+  - Magnitude and depth
+  - Location coordinates
+  - Distance from selected point
+  - Timestamp
+- **Responsive Design**: Seamless experience across desktop and mobile devices
 
-## Tech Stack
+## Technology Stack
 
-- **Frontend**: React + Vite + TypeScript
-- **UI Components**: Tremor + Tailwind CSS
-- **Backend**: Express.js + TypeScript
-- **Containerization**: Docker
-- **Package Manager**: pnpm
-- **Build Tool**: Turborepo
-- **Deployment**: Vercel
+- **Frontend**:
+  - React
+  - TypeScript
+  - Tailwind CSS
+  - Leaflet for map visualization
+  - React DatePicker for date selection
+  - Shadcn UI components
 
-## Project Structure
-
-```
-tremor-watch/
-├── apps/
-│   ├── api/           # Express.js backend
-│   └── web/          # React frontend
-├── packages/
-│   └── shared/       # Shared utilities and types
-├── .env.dev          # Development environment variables
-├── .env.prod         # Production environment variables
-├── .env.test         # Test environment variables
-├── docker-compose.yml
-├── Dockerfile
-├── package.json
-├── pnpm-workspace.yaml
-├── turbo.json
-└── vercel.json
-```
-
-## API Endpoints
-
-### Earthquakes
-
-#### Get Recent Earthquakes
-```http
-GET /earthquakes
-```
-
-Returns earthquake data for the last 24 hours.
-
-#### Get Earthquakes by Location
-```http
-GET /earthquakes/location
-```
-
-Query Parameters:
-- `latitude` (required): Latitude coordinate (-90 to 90)
-- `longitude` (required): Longitude coordinate (-180 to 180)
-- `radius` (optional): Search radius in kilometers (default: 2000)
-- `starttime` (optional): Start date in YYYY-MM-DD format
-- `endtime` (optional): End date in YYYY-MM-DD format
-
-Example:
-```http
-GET /earthquakes/location?latitude=13.7454881&longitude=100.5622455&radius=1000
-```
-
-## Development
+## Getting Started
 
 ### Prerequisites
 
-- Node.js (v20 or higher)
-- pnpm (v10.7.0 or higher)
-- Docker (optional)
+- Node.js (v16 or higher)
+- npm or yarn
 
-### Environment Setup
+### Installation
 
-The project uses different environment files for different deployment scenarios:
-- `.env.dev` - Development environment configuration
-- `.env.prod` - Production environment configuration
-- `.env.test` - Test environment configuration
-
-Base environment variables:
-
-```env
-PORT=3000
-NODE_ENV=development
-USGS_API_URL=https://earthquake.usgs.gov/fdsnws/event/1/query
-```
-
-### Running Locally
-
-1. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-2. Start the development servers:
-   ```bash
-   pnpm dev
-   ```
-
-3. Access the application:
-   - Frontend: http://localhost:5173
-   - API: http://localhost:3000
-
-### Running with Docker
-
-1. Build and start containers:
-   ```bash
-   docker-compose up --build
-   ```
-
-2. Access the application:
-   - Frontend: http://localhost:5173
-   - API: http://localhost:3000
-
-## Testing
-
-Run tests:
+1. Clone the repository:
 ```bash
-pnpm test
+git clone https://github.com/yourusername/tremor-watch.git
+cd tremor-watch
 ```
 
-Run tests with coverage:
+2. Install dependencies:
 ```bash
-pnpm test:coverage
+npm install
+# or
+yarn install
 ```
 
-Run tests with UI:
+3. Start the development server:
 ```bash
-pnpm test:ui
+npm run dev
+# or
+yarn dev
 ```
 
-## Deployment
+The application will be available at `http://localhost:3000`
 
-The application is configured for deployment on Vercel using the `vercel.json` configuration file. The deployment process is automated through GitHub Actions workflows.
+## Usage
+
+1. **Map Navigation**:
+   - Pan and zoom the map to explore different regions
+   - Click on earthquake markers for detailed information
+
+2. **Filtering**:
+   - Use magnitude buttons to filter earthquakes by strength
+   - Enter location names in the search box
+   - Select a date range to view historical data
+
+3. **Radius Selection**:
+   - Adjust the radius slider to define your area of interest
+   - View earthquakes within the specified distance from the center point
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes following the [Conventional Commits](https://www.conventionalcommits.org/) specification
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-- [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/) for providing the earthquake data
-- [Tremor](https://www.tremor.so/) for the beautiful UI components
-- [OpenStreetMap](https://www.openstreetmap.org/) for the map data
+- USGS for providing earthquake data
+- OpenStreetMap for map tiles
+- All contributors who have helped shape this project
+
+---
+
+Made with ❤️ by [Your Name/Team]

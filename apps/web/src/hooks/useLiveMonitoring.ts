@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { showNewEarthquakeToast, showErrorToast, showLiveMonitoringToast } from '../components/Toast';
 import { calculateDistance, calculateArrivalTime } from '../components/RecentEarthquakes';
-import { Earthquake } from '../types/earthquake';
+import { EarthquakeFeature } from '../types/earthquake';
 
 interface UseLiveMonitoringProps {
-  earthquakes: Earthquake[];
+  earthquakes: EarthquakeFeature[];
   latitude: number;
   longitude: number;
   timeRange: string;
