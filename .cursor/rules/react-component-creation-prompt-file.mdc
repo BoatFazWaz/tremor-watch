@@ -25,7 +25,7 @@ alwaysApply: true
 5. URL encode the prompt.
 
 6. Create a clickable link in this format:
-   [ComponentName](https://v0.dev/chat?q={encoded_prompt})
+   [ComponentName](mdc:https:/v0.dev/chat?q={encoded_prompt})
 
 7. After generating, adapt the component to fit our project structure:
    - Import

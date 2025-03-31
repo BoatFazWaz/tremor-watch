@@ -6,7 +6,8 @@ import { MapSection } from './components/MapSection';
 import { RecentEarthquakes } from './components/RecentEarthquakes';
 import { useEarthquakes } from './hooks/useEarthquakes';
 import { calculateDistance, calculateArrivalTime } from './components/RecentEarthquakes';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
+import { showNewEarthquakeToast, showErrorToast, showLiveMonitoringToast } from './components/Toast';
 
 function App() {
   const [latitude, setLatitude] = useState(13.7454881);
@@ -20,7 +21,7 @@ function App() {
   // Store the original time range when live monitoring starts
   const [previousTimeRange, setPreviousTimeRange] = useState<string | null>(null);
 
-  const { earthquakes, loading, error, refetch } = useEarthquakes({
+  const { earthquakes, loading, refetch } = useEarthquakes({
     latitude,
     longitude,
     radius,
@@ -46,41 +47,15 @@ function App() {
       latestEarthquake.geometry.coordinates[0]
     );
 
-    const travelTimes = calculateArrivalTime(distance, latestEarthquake.properties.time);
+    const travelTimes = calculateArrivalTime(distance);
 
     // Show toast notification for new earthquake
-    toast((t) => (
-      <div className="flex items-start gap-4">
-        <div className="flex-1">
-          <div className="font-medium text-gray-900">
-            New Earthquake Detected!
-          </div>
-          <div className="mt-1 text-sm text-gray-500">
-            <div>Magnitude: {latestEarthquake.properties.mag}</div>
-            <div>Location: {latestEarthquake.properties.place}</div>
-            <div>P-wave arrival: {travelTimes.pWave.formatted}</div>
-            <div>S-wave arrival: {travelTimes.sWave.formatted}</div>
-          </div>
-        </div>
-        <button
-          onClick={() => toast.dismiss(t.id)}
-          className="text-gray-400 hover:text-gray-500"
-        >
-          <span className="sr-only">Close</span>
-          <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-      </div>
-    ), {
-      duration: 10000, // 10 seconds
-      position: 'top-right',
-    });
+    showNewEarthquakeToast(latestEarthquake, travelTimes);
 
     // Check if we have permission to send notifications
     if (Notification.permission === "granted") {
       // Create notification with earthquake details
-      const notification = new Notification("New Earthquake Detected!", {
+      new Notification("New Earthquake Detected!", {
         body: `Magnitude ${latestEarthquake.properties.mag} earthquake detected.\nLocation: ${latestEarthquake.properties.place}\nP-wave arrival: ${travelTimes.pWave.formatted}\nS-wave arrival: ${travelTimes.sWave.formatted}`,
         icon: "/favicon.ico"
       });
@@ -92,14 +67,14 @@ function App() {
   // Request notification permission when live monitoring is enabled
   const requestNotificationPermission = async () => {
     if (!("Notification" in window)) {
-      toast.error("This browser does not support desktop notifications");
+      showErrorToast(new Error("This browser does not support desktop notifications"));
       return;
     }
 
     if (Notification.permission !== "granted" && Notification.permission !== "denied") {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
-        toast.error("Please enable notifications to receive earthquake alerts.");
+        showErrorToast(new Error("Please enable notifications to receive earthquake alerts."));
       }
     }
   };
@@ -107,10 +82,7 @@ function App() {
   // Set up live monitoring interval
   useEffect(() => {
     const fetchData = async () => {
-      // If already fetching, skip this cycle
-      if (isFetchingRef.current) {
-        return;
-      }
+      if (isFetchingRef.current) return;
 
       try {
         isFetchingRef.current = true;
@@ -118,41 +90,7 @@ function App() {
         checkForNewEarthquakes();
       } catch (error) {
         console.error('Error fetching earthquake data:', error);
-        toast.error(
-          (t) => (
-            <div className="flex items-start gap-4">
-              <div className="flex-1">
-                <div className="font-medium text-red-800">
-                  Failed to Fetch Earthquake Data
-                </div>
-                <div className="mt-1 text-sm text-red-600">
-                  {error instanceof Error ? error.message : 'An unexpected error occurred'}
-                </div>
-                <div className="mt-2 text-xs text-red-500">
-                  Retrying in 2 seconds...
-                </div>
-              </div>
-              <button
-                onClick={() => toast.dismiss(t.id)}
-                className="text-red-400 hover:text-red-500"
-              >
-                <span className="sr-only">Close</span>
-                <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          ),
-          {
-            duration: 5000,
-            position: 'top-right',
-            style: {
-              background: '#FEF2F2',
-              border: '1px solid #FCA5A5',
-              borderRadius: '0.5rem',
-            },
-          }
-        );
+        showErrorToast(error instanceof Error ? error : new Error('An unexpected error occurred'));
       } finally {
         isFetchingRef.current = false;
       }
@@ -197,9 +135,7 @@ function App() {
       // Starting live monitoring
       setPreviousTimeRange(timeRange);
       requestNotificationPermission();
-      toast.success("Live monitoring started", {
-        icon: '🔴',
-      });
+      showLiveMonitoringToast(true);
     } else {
       // Stopping live monitoring
       if (previousTimeRange) {
@@ -210,9 +146,7 @@ function App() {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      toast("Live monitoring stopped", {
-        icon: '⚫',
-      });
+      showLiveMonitoringToast(false);
     }
     setIsLiveFetchEnabled(!isLiveFetchEnabled);
   }, [isLiveFetchEnabled, timeRange, previousTimeRange]);

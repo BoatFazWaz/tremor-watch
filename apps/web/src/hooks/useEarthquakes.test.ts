@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useEarthquakes } from '../useEarthquakes';
-import { fetchEarthquakes } from '../../services/earthquakeService';
+import { useEarthquakes } from './useEarthquakes';
+import { fetchEarthquakes } from '../services/earthquakeService';
 
 // Mock the earthquakeService
-vi.mock('../../services/earthquakeService', () => ({
+vi.mock('../services/earthquakeService', () => ({
   fetchEarthquakes: vi.fn()
 }));
 

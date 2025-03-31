@@ -2,7 +2,6 @@ import { EarthquakeFeature } from '../types/earthquake';
 import { EarthquakeMap } from './EarthquakeMap';
 import clsx from 'clsx';
 import { calculateDistance, calculateEffect, calculateArrivalTime, getEffectColor } from './RecentEarthquakes';
-import { InfoIcon } from './icons';
 
 interface EarthquakeDetailsModalProps {
   earthquake: EarthquakeFeature | null;
@@ -68,7 +67,7 @@ export const EarthquakeDetailsModal: React.FC<EarthquakeDetailsModalProps> = ({
     distance
   );
 
-  const travelTimes = calculateArrivalTime(distance, time);
+  const travelTimes = calculateArrivalTime(distance);
 
   return (
     <>
