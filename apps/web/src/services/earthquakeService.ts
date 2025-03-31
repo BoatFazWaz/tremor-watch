@@ -23,6 +23,8 @@ export const calculateStartTime = (timeRange: string): string => {
       return new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
     case '7d':
       return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    case '14d':
+      return new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
     case '30d':
       return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
     default:

@@ -35,6 +35,11 @@ describe('calculateStartTime', () => {
     expect(result).toBe('2024-02-28T00:00:00.000Z');
   });
 
+  it('should calculate correct start time for 14d', () => {
+    const result = calculateStartTime('14d');
+    expect(result).toBe('2024-02-21T00:00:00.000Z');
+  });
+
   it('should calculate correct start time for 30d', () => {
     const result = calculateStartTime('30d');
     expect(result).toBe('2024-02-05T00:00:00.000Z');
