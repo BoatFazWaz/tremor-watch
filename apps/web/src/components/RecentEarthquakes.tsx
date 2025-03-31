@@ -340,37 +340,20 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
 
         {/* Filters */}
         <div className="mb-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Minimum Magnitude
-              </label>
-              <input
-                type="number"
-                value={minMagnitude}
-                onChange={(e) => {
-                  setMinMagnitude(e.target.value ? Number(e.target.value) : '');
-                  setCurrentPage(1);
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Filter by magnitude"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Search Location
-              </label>
-              <input
-                type="text"
-                value={searchLocation}
-                onChange={(e) => {
-                  setSearchLocation(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Search by location"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Search Location
+            </label>
+            <input
+              type="text"
+              value={searchLocation}
+              onChange={(e) => {
+                setSearchLocation(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Search by location"
+            />
           </div>
 
           {/* Quick Filters */}
@@ -379,7 +362,7 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
               onClick={() => setMinMagnitude(6)}
               className={clsx(
                 "px-3 py-1 text-sm font-medium rounded-full",
-                "bg-red-100 text-red-800 hover:bg-red-200"
+                minMagnitude === 6 ? "bg-red-100 text-red-800" : "bg-red-50 text-red-800 hover:bg-red-100"
               )}
             >
               Magnitude ≥ 6.0
@@ -388,7 +371,7 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
               onClick={() => setMinMagnitude(5)}
               className={clsx(
                 "px-3 py-1 text-sm font-medium rounded-full",
-                "bg-orange-100 text-orange-800 hover:bg-orange-200"
+                minMagnitude === 5 ? "bg-orange-100 text-orange-800" : "bg-orange-50 text-orange-800 hover:bg-orange-100"
               )}
             >
               Magnitude ≥ 5.0
@@ -397,7 +380,7 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
               onClick={() => setMinMagnitude(4)}
               className={clsx(
                 "px-3 py-1 text-sm font-medium rounded-full",
-                "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                minMagnitude === 4 ? "bg-yellow-100 text-yellow-800" : "bg-yellow-50 text-yellow-800 hover:bg-yellow-100"
               )}
             >
               Magnitude ≥ 4.0
@@ -406,7 +389,7 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
               onClick={() => setMinMagnitude(3)}
               className={clsx(
                 "px-3 py-1 text-sm font-medium rounded-full",
-                "bg-green-100 text-green-800 hover:bg-green-200"
+                minMagnitude === 3 ? "bg-green-100 text-green-800" : "bg-green-50 text-green-800 hover:bg-green-100"
               )}
             >
               Magnitude ≥ 3.0
@@ -415,16 +398,16 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
               onClick={() => setMinMagnitude('')}
               className={clsx(
                 "px-3 py-1 text-sm font-medium rounded-full",
-                "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                !minMagnitude ? "bg-gray-100 text-gray-800" : "bg-gray-50 text-gray-800 hover:bg-gray-100"
               )}
             >
-              Clear Filters
+              Show All
             </button>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
+        {/* Earthquakes Grid */}
+        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -438,131 +421,89 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
               </p>
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('time')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Time
-                      {sortField === 'time' && (
-                        sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                      )}
-                    </div>
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('magnitude')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Magnitude
-                      {sortField === 'magnitude' && (
-                        sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                      )}
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('depth')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Depth
-                      {sortField === 'depth' && (
-                        sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                      )}
-                    </div>
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort('distance')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Distance
-                      {sortField === 'distance' && (
-                        sortDirection === 'asc' ? <ChevronUpIcon /> : <ChevronDownIcon />
-                      )}
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Potential Effect
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Travel Time
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedEarthquakes.map((earthquake) => {
-                  const distance = calculateDistance(
-                    latitude,
-                    longitude,
-                    earthquake.geometry.coordinates[1],
-                    earthquake.geometry.coordinates[0]
-                  );
+            filteredAndSortedEarthquakes.map((earthquake) => {
+              const distance = calculateDistance(
+                latitude,
+                longitude,
+                earthquake.geometry.coordinates[1],
+                earthquake.geometry.coordinates[0]
+              );
 
-                  const effect = calculateEffect(
-                    earthquake.properties.mag,
-                    earthquake.geometry.coordinates[2],
-                    distance
-                  );
+              const effect = calculateEffect(
+                earthquake.properties.mag,
+                earthquake.geometry.coordinates[2],
+                distance
+              );
 
-                  const travelTimes = calculateArrivalTime(distance);
-                  
-                  return (
-                    <tr 
-                      key={earthquake.id} 
-                      onClick={() => setSelectedEarthquake(earthquake)}
-                      className="hover:bg-gray-50 cursor-pointer transition-colors"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              const travelTimes = calculateArrivalTime(distance);
+              
+              return (
+                <div 
+                  key={earthquake.id}
+                  onClick={() => setSelectedEarthquake(earthquake)}
+                  className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer p-4"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="text-sm text-gray-500">
                         {formatDate(earthquake.properties.time)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={clsx(
-                          "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
-                          earthquake.properties.mag >= 6
-                            ? "bg-red-100 text-red-800"
-                            : earthquake.properties.mag >= 5
-                            ? "bg-orange-100 text-orange-800"
-                            : earthquake.properties.mag >= 4
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-green-100 text-green-800"
-                        )}>
-                          {earthquake.properties.mag.toFixed(1)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {earthquake.properties.place}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {earthquake.geometry.coordinates[2].toFixed(1)} km
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {distance.toFixed(1)} km
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={clsx(
-                          "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
-                          getEffectColor(effect)
-                        )}>
-                          {effect}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {travelTimes.pWave.formatted}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                      <div className="text-base font-medium text-gray-900 max-w-[500px]">
+                        {earthquake.properties.place}
+                      </div>
+                    </div>
+                    <span className={clsx(
+                      "px-3 py-1 text-sm font-semibold rounded-full",
+                      earthquake.properties.mag >= 6
+                        ? "bg-red-100 text-red-800"
+                        : earthquake.properties.mag >= 5
+                        ? "bg-orange-100 text-orange-800"
+                        : earthquake.properties.mag >= 4
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-green-100 text-green-800"
+                    )}>
+                      M {earthquake.properties.mag.toFixed(1)}
+                    </span>
+                  </div>
+                  
+                  <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="text-gray-500">Distance</div>
+                      <div className="font-medium">{distance.toFixed(0)} km</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500">Effect</div>
+                      <span className={clsx(
+                        "px-2 py-0.5 text-xs font-semibold rounded-full",
+                        getEffectColor(effect)
+                      )}>
+                        {effect}
+                      </span>
+                    </div>
+                    <div>
+                      <div className="text-gray-500">P-Wave</div>
+                      <div className="font-medium">{travelTimes.pWave.formatted}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 text-xs text-gray-500 flex items-center gap-4">
+                    <div>
+                      Depth: {earthquake.geometry.coordinates[2].toFixed(1)} km
+                    </div>
+                    {earthquake.properties.tsunami === 1 && (
+                      <div className="text-orange-600 font-medium flex items-center gap-1">
+                        Tsunami Warning
+                      </div>
+                    )}
+                    {earthquake.properties.felt && (
+                      <div>
+                        Felt by {earthquake.properties.felt} people
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
 
@@ -573,37 +514,6 @@ export function RecentEarthquakes({ earthquakes, loading = false, latitude, long
           latitude={latitude}
           longitude={longitude}
         />
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedEarthquakes.length)} of {filteredAndSortedEarthquakes.length} results
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className={clsx(
-                  "px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50",
-                  currentPage === 1 && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className={clsx(
-                  "px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50",
-                  currentPage === totalPages && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </Card>
   );

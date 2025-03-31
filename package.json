@@ -29,6 +29,8 @@
   },
   "packageManager": "pnpm@10.7.0",
   "dependencies": {
+    "@types/react-datepicker": "^7.0.0",
+    "react-datepicker": "^8.2.1",
     "react-hot-toast": "^2.5.2"
   }
 }

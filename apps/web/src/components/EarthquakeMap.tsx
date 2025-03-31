@@ -64,8 +64,7 @@ export function EarthquakeMap({
           color: '#3b82f6',
           fillColor: '#3b82f6',
           fillOpacity: 0.1,
-          weight: 1,
-          dashArray: '5, 10',
+          weight: 1
         }).addTo(mapRef.current);
 
         // Add drag event handler
