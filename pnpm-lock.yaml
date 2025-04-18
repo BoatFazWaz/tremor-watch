@@ -24,12 +24,21 @@ importers:
       '@testing-library/react':
         specifier: ^16.2.0
         version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@types/react':
+        specifier: 19.0.12
+        version: 19.0.12
+      '@types/react-dom':
+        specifier: ^19.0.4
+        version: 19.0.4(@types/react@19.0.12)
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.3.4(vite@6.2.3(@types/node@22.13.14)(jiti@2.4.2)(lightningcss@1.29.2))
       '@vitest/ui':
         specifier: ^3.1.1
         version: 3.1.1(vitest@3.1.1)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       jsdom:
         specifier: ^26.0.0
         version: 26.0.0
@@ -4052,7 +4061,7 @@ snapshots:
       std-env: 3.8.1
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.1.1(@types/node@22.13.14)(@vitest/ui@3.1.1)(jiti@2.4.2)(jsdom@24.1.3)(lightningcss@1.29.2)
+      vitest: 3.1.1(@types/node@22.13.14)(@vitest/ui@3.1.1)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -4099,7 +4108,7 @@ snapshots:
       sirv: 3.0.1
       tinyglobby: 0.2.12
       tinyrainbow: 2.0.0
-      vitest: 3.1.1(@types/node@22.13.14)(@vitest/ui@3.1.1)(jiti@2.4.2)(jsdom@24.1.3)(lightningcss@1.29.2)
+      vitest: 3.1.1(@types/node@22.13.14)(@vitest/ui@3.1.1)(jiti@2.4.2)(jsdom@26.0.0)(lightningcss@1.29.2)
 
   '@vitest/utils@3.1.1':
     dependencies:
