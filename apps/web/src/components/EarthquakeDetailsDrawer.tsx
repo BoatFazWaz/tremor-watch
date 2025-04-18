@@ -29,6 +29,34 @@ const getMagnitudeColor = (magnitude: number) => {
   return 'bg-green-100 text-green-800';
 };
 
+// Add new helper functions
+const calculateAfterShockProbability = (magnitude: number): string => {
+  if (magnitude >= 7) return 'Very High (>90%)';
+  if (magnitude >= 6) return 'High (70-90%)';
+  if (magnitude >= 5) return 'Moderate (40-70%)';
+  if (magnitude >= 4) return 'Low (20-40%)';
+  return 'Very Low (<20%)';
+};
+
+const getIntensityDescription = (mmi: number): string => {
+  if (mmi >= 9) return 'Violent - Considerable damage to specially designed structures';
+  if (mmi >= 8) return 'Severe - Considerable damage in ordinary buildings';
+  if (mmi >= 7) return 'Very Strong - Negligible damage in buildings of good design';
+  if (mmi >= 6) return 'Strong - Felt by all, many frightened';
+  if (mmi >= 5) return 'Moderate - Felt by nearly everyone';
+  if (mmi >= 4) return 'Light - Felt indoors by many';
+  if (mmi >= 3) return 'Weak - Felt quite noticeably by people indoors';
+  if (mmi >= 2) return 'Very Weak - Felt only by a few people at rest';
+  return 'Not Felt';
+};
+
+const getRiskLevel = (mag: number, depth: number): string => {
+  if (mag >= 7 && depth < 70) return 'Extreme';
+  if (mag >= 6 && depth < 100) return 'High';
+  if (mag >= 5 || (mag >= 4 && depth < 50)) return 'Moderate';
+  return 'Low';
+};
+
 export const EarthquakeDetailsDrawer: React.FC<EarthquakeDetailsDrawerProps> = ({
   earthquake,
   onClose,
@@ -149,7 +177,7 @@ export const EarthquakeDetailsDrawer: React.FC<EarthquakeDetailsDrawerProps> = (
               </div>
             </div>
 
-            {/* Quick Stats */}
+            {/* Enhanced Quick Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-50 rounded-lg p-4">
               <div>
                 <div className="text-xs text-gray-500">Distance</div>
@@ -189,6 +217,87 @@ export const EarthquakeDetailsDrawer: React.FC<EarthquakeDetailsDrawerProps> = (
                     </div>
                     <span>{travelTimes.sWave.formatted}</span>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Risk Assessment Section */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">Risk Assessment</h4>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div>
+                  <div className="text-xs text-gray-500">Overall Risk Level</div>
+                  <div className="text-sm font-medium">
+                    {getRiskLevel(mag, coordinates[2])}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">Aftershock Probability</div>
+                  <div className="text-sm font-medium">
+                    {calculateAfterShockProbability(mag)}
+                  </div>
+                </div>
+                {mmi && (
+                  <div>
+                    <div className="text-xs text-gray-500">Expected Impact</div>
+                    <div className="text-sm font-medium">
+                      {getIntensityDescription(mmi)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Population Impact */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">Population Impact</h4>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div>
+                  <div className="text-xs text-gray-500">Potential Affected Area</div>
+                  <div className="text-sm font-medium">
+                    {mag >= 7 ? '> 200km radius' : 
+                     mag >= 6 ? '100-200km radius' : 
+                     mag >= 5 ? '50-100km radius' : 
+                     '< 50km radius'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">Building Damage Risk</div>
+                  <div className="text-sm font-medium">
+                    {mag >= 7 ? 'Severe structural damage likely' :
+                     mag >= 6 ? 'Moderate structural damage possible' :
+                     mag >= 5 ? 'Light damage possible' :
+                     'Minimal to no damage expected'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Safety Recommendations */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">Safety Recommendations</h4>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="text-sm">
+                  {mag >= 6 ? (
+                    <ul className="list-disc pl-4 space-y-2">
+                      <li>Evacuate buildings if safe to do so</li>
+                      <li>Stay away from windows and exterior walls</li>
+                      <li>Be prepared for aftershocks</li>
+                      <li>Monitor local emergency broadcasts</li>
+                      <li>Check on neighbors if possible</li>
+                    </ul>
+                  ) : mag >= 4 ? (
+                    <ul className="list-disc pl-4 space-y-2">
+                      <li>Stay calm and be prepared for aftershocks</li>
+                      <li>Check for building damage</li>
+                      <li>Monitor local news</li>
+                    </ul>
+                  ) : (
+                    <ul className="list-disc pl-4 space-y-2">
+                      <li>No immediate action required</li>
+                      <li>Stay informed of any updates</li>
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>
@@ -251,6 +360,34 @@ export const EarthquakeDetailsDrawer: React.FC<EarthquakeDetailsDrawerProps> = (
                 <div>
                   <div className="text-xs text-gray-500">Significance</div>
                   <div className="text-sm font-medium">{sig}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Historical Context */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-500 mb-2">Historical Context</h4>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div>
+                  <div className="text-xs text-gray-500">Significance Rating</div>
+                  <div className="text-sm font-medium">
+                    {sig >= 1000 ? 'Exceptionally Significant' :
+                     sig >= 750 ? 'Highly Significant' :
+                     sig >= 500 ? 'Significant' :
+                     sig >= 250 ? 'Moderately Significant' :
+                     'Low Significance'} ({sig})
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">Magnitude Classification</div>
+                  <div className="text-sm font-medium">
+                    {mag >= 8 ? 'Great Earthquake' :
+                     mag >= 7 ? 'Major Earthquake' :
+                     mag >= 6 ? 'Strong Earthquake' :
+                     mag >= 5 ? 'Moderate Earthquake' :
+                     mag >= 4 ? 'Light Earthquake' :
+                     'Minor Earthquake'}
+                  </div>
                 </div>
               </div>
             </div>
